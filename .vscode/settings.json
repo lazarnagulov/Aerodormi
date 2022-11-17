@@ -1,0 +1,5 @@
+{
+    "pythonTestExplorer.testFramework": "unittest",
+    "pythonTestExplorer.testplanPath": "test_*.py",
+    "pythonTestExplorer.testplanEnabled": false
+}

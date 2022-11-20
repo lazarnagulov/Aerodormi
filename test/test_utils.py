@@ -5,6 +5,7 @@ from common import konstante
 def rand_str(length):
     return "".join(random.choice(string.ascii_lowercase) for i in range(length))
 
+
 def rand_valid_user():
     return {
             "ime": rand_str(10),
@@ -18,3 +19,8 @@ def rand_valid_user():
             "pol": rand_str(10),
             "uloga": konstante.ULOGA_KORISNIK,
         }
+
+
+def gen_rand_valid_users(num):
+    for i in range(num):
+        yield rand_valid_user()

@@ -2,56 +2,51 @@ from common import konstante
 from csv import DictReader, DictWriter
 
 def podesi_korisnika(korisnik: str, lozinka: str, ime: str, prezime: str,
-                      uloga: str, pasos: str = None, drzavljanstvo: str = None,
-                      telefon: str = None, email: str = None, pol: str = None) -> dict:
+                      uloga: str, pasos: str = "", drzavljanstvo: str = "",
+                      telefon: str = "", email: str = "", pol: str = "") -> dict:
     
     svi_korisnici = dict()
     svi_korisnici.update({korisnik : {}})
     svi_korisnici[korisnik]['korisnicko_ime'] = korisnik
-    svi_korisnici[korisnik]['lozinka'] = str(lozinka)
-    svi_korisnici[korisnik]['ime'] = str(ime)
-    svi_korisnici[korisnik]['prezime'] = str(prezime)
-    svi_korisnici[korisnik]['uloga'] = str(uloga)
-    if pasos != None: svi_korisnici[korisnik]['pasos'] = pasos 
-    if drzavljanstvo != None: svi_korisnici[korisnik]['drzavljanstvo'] = drzavljanstvo
-    if telefon != None: svi_korisnici[korisnik]['telefon'] = telefon 
-    if email != None: svi_korisnici[korisnik]['email'] = email
-    if pol != None: svi_korisnici[korisnik]['pol'] = pol
+    svi_korisnici[korisnik]['lozinka'] = lozinka
+    svi_korisnici[korisnik]['ime'] = ime
+    svi_korisnici[korisnik]['prezime'] = prezime
+    svi_korisnici[korisnik]['uloga'] = uloga
+    svi_korisnici[korisnik]['pasos'] = pasos 
+    svi_korisnici[korisnik]['drzavljanstvo'] = drzavljanstvo
+    svi_korisnici[korisnik]['telefon'] = telefon 
+    svi_korisnici[korisnik]['email'] = email
+    svi_korisnici[korisnik]['pol'] = pol
 
     return svi_korisnici
 
 def validacija(korisnik: str, lozinka: str, ime: str, prezime: str,
-                      uloga: str, pasos: str = None, drzavljanstvo: str = None,
-                      telefon: str = None, email: str = None, pol: str = None) -> bool:
-    if pol == None or telefon == None or drzavljanstvo == None or pasos == None or email == None or ime == None or prezime == None or korisnik == None or lozinka == None or uloga == None:
-        # print("Fali nešto!")
+                      uloga: str, pasos: str = "",
+                      telefon: str = "", email: str = "") -> bool:
+    if email == "" or email == None or ime == "" or ime == None or prezime == "" or prezime == None or korisnik == None or korisnik == "" or lozinka == None or lozinka == "" or uloga == None or uloga == "":
+        print("Fali nešto!")
         return False
-    if email != None:
+    if email != "" and email != None:
         if "@" not in email:
-            # print("Neispravan email")
+            print(f"Neispravan email:{email}")
             return False
-        _, domen = str(email).split("@")
-        if domen.count(".") != 1:
-            # print("Neispravan email")
-            return False
+        else:
+            _, domen = str(email).split("@")
+            if domen.count(".") != 1:
+                print(f"Neispravan email:{email}")
+                return False
     if uloga != konstante.ULOGA_ADMIN and uloga != konstante.ULOGA_KORISNIK and uloga != konstante.ULOGA_PRODAVAC:
-        # print("Nepostojeća uloga")
+        print("Nepostojeća uloga")
         return False
-    if pasos != None:
-        if len(str(pasos)) != 9:
-            # print("Neispravan pasoš")
+    if pasos != "" and pasos != None:
+        if len(str(pasos)) != 9 or not str(pasos).isnumeric():
+            print(f"Neispravan pasoš:{pasos}")
             return False
-        try:
-            pasos = int(pasos)
-        except:
-            # print("Neispravan pasos!")
+    if telefon != "" and pasos != None:
+        if not str(telefon).isnumeric():
+            print(f"Neispravan broj telefona:{telefon}")
             return False
-    if telefon != None:
-        try:
-            telefon = int(telefon)
-        except:
-            # print("Neispravan broj telefona!")
-            return False
+    
     return True
 
 """
@@ -70,16 +65,23 @@ ODBRANA: Baca grešku sa porukom ako podaci nisu validni.
 """
 
 def kreiraj_korisnika(svi_korisnici: dict, azuriraj: bool, uloga: str, staro_korisnicko_ime: str, korisnicko_ime: str,
-                      lozinka: str, ime: str, prezime: str, email: str = None,
-                      pasos: str = None, drzavljanstvo: str = None, 
-                      telefon: str = None, pol: str = None) -> dict:
-    if not validacija(korisnicko_ime, lozinka, ime, prezime, uloga, pasos, drzavljanstvo, telefon, email, pol):
+                      lozinka: str, ime: str, prezime: str, email: str = "",
+                      pasos: str = "", drzavljanstvo: str = "", 
+                      telefon: str = "", pol: str = "") -> dict:
+    if not validacija(korisnicko_ime, lozinka, ime, prezime, uloga, pasos, telefon, email):
         return "Neuspešna validacija podataka!"
     if azuriraj:
-        if staro_korisnicko_ime not in svi_korisnici.keys():
-            return "Korisničko ime ne postoji!"
-        del svi_korisnici[staro_korisnicko_ime]
-        svi_korisnici.update(podesi_korisnika(korisnicko_ime, lozinka, ime, prezime, uloga, pasos, drzavljanstvo, telefon, email, pol))
+        if staro_korisnicko_ime != None:
+            if korisnicko_ime in svi_korisnici.keys():
+                return "Neuspešno ažuriranje! Korisničko ime već postoji!"
+            if staro_korisnicko_ime not in svi_korisnici.keys():
+                return "Korisničko ime ne postoji!"
+            del svi_korisnici[staro_korisnicko_ime]
+            svi_korisnici.update(podesi_korisnika(korisnicko_ime, lozinka, ime, prezime, uloga, pasos, drzavljanstvo, telefon, email, pol))
+        else:
+            if korisnicko_ime not in svi_korisnici.keys():
+                return "Korisničko ime ne postoji!"
+            svi_korisnici.update(podesi_korisnika(korisnicko_ime, lozinka, ime, prezime, uloga, pasos, drzavljanstvo, telefon, email, pol))
         return svi_korisnici
     else:
         if korisnicko_ime in svi_korisnici.keys():
@@ -94,16 +96,6 @@ def sacuvaj_korisnike(putanja: str, separator: str, svi_korisnici: dict):
         csv_pisac = DictWriter(f, ['korisnicko_ime','lozinka','ime','prezime','uloga','pasos','drzavljanstvo','telefon','email','pol'], delimiter = separator)
         for korisnik in svi_korisnici:
             csv_pisac.writerow(svi_korisnici[korisnik])
-            # f.write(korisnik + separator)
-            # f.write(svi_korisnici[korisnik]['lozinka'] +  separator)
-            # f.write(svi_korisnici[korisnik]['ime'] + separator)
-            # f.write(svi_korisnici[korisnik]['prezime'] + separator)
-            # f.write(svi_korisnici[korisnik]['uloga'] + separator)
-            # f.write(str(svi_korisnici[korisnik]['pasos']) + separator) if 'pasos' in svi_korisnici[korisnik] else f.write(separator) 
-            # f.write(svi_korisnici[korisnik]['drzavljanstvo'] + separator) if 'drzavljanstvo' in svi_korisnici[korisnik] else f.write(separator) 
-            # f.write(str(svi_korisnici[korisnik]['telefon']) + separator) if 'telefon' in svi_korisnici[korisnik] else f.write(separator) 
-            # f.write(str(svi_korisnici[korisnik]['email']) + separator) if 'email' in svi_korisnici[korisnik] else f.write(separator) 
-            # f.write(svi_korisnici[korisnik]['pol'] + '\n') if 'pol' in svi_korisnici[korisnik] else f.write(" \n") 
 """
 Funkcija koja učitava sve korisnika iz fajla na putanji sa zadatim separatorom. Kao rezultat vraća učitane korisnike.
 """
@@ -112,8 +104,6 @@ def ucitaj_korisnike_iz_fajla(putanja: str, separator: str) -> dict:
         svi_korisnici = dict()
         csv_citac = DictReader(f,['korisnicko_ime','lozinka','ime','prezime','uloga','pasos','drzavljanstvo','telefon','email','pol'], delimiter=separator)
         for korisnik in csv_citac:
-            # korisnik.update({'pasos': int(korisnik['pasos'])})
-            # korisnik.update({'telefon': int(korisnik['telefon'])})
             svi_korisnici.update({korisnik['korisnicko_ime']: korisnik})
         return svi_korisnici       
 """

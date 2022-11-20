@@ -5,6 +5,7 @@ from common import konstante
 def pocetna_strana():
     prijavljeni_korisnici = dict()
     svi_korisnici = dict()
+    
     if svi_korisnici == {}:
         svi_korisnici = korisnici.ucitaj_korisnike_iz_fajla(konstante.PUTANJA, ",")
     system('cls')

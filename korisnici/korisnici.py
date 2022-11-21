@@ -71,17 +71,15 @@ def kreiraj_korisnika(svi_korisnici: dict, azuriraj: bool, uloga: str, staro_kor
     if not validacija(korisnicko_ime, lozinka, ime, prezime, uloga, pasos, telefon, email):
         return "Neuspešna validacija podataka!"
     if azuriraj:
-        if staro_korisnicko_ime != None:
-            if korisnicko_ime in svi_korisnici.keys():
-                return "Neuspešno ažuriranje! Korisničko ime već postoji!"
-            if staro_korisnicko_ime not in svi_korisnici.keys():
-                return "Korisničko ime ne postoji!"
-            del svi_korisnici[staro_korisnicko_ime]
-            svi_korisnici.update(podesi_korisnika(korisnicko_ime, lozinka, ime, prezime, uloga, pasos, drzavljanstvo, telefon, email, pol))
+        if staro_korisnicko_ime not in svi_korisnici:
+            return "Staro korisničko ime ne postoji!"
+        if staro_korisnicko_ime != korisnicko_ime:
+            return "Korisničko ime već postoji!"
         else:
-            if korisnicko_ime not in svi_korisnici.keys():
-                return "Korisničko ime ne postoji!"
-            svi_korisnici.update(podesi_korisnika(korisnicko_ime, lozinka, ime, prezime, uloga, pasos, drzavljanstvo, telefon, email, pol))
+            svi_korisnici.update(podesi_korisnika(korisnicko_ime, lozinka, ime, prezime, uloga, pasos,drzavljanstvo,telefon,email,pol))
+            return svi_korisnici
+        del svi_korisnici[staro_korisnicko_ime]
+        svi_korisnici.update(podesi_korisnika(korisnicko_ime, lozinka, ime, prezime, uloga, pasos,drzavljanstvo,telefon,email,pol))
         return svi_korisnici
     else:
         if korisnicko_ime in svi_korisnici.keys():

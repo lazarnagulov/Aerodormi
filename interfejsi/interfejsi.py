@@ -24,7 +24,6 @@ def prijava(svi_korisnici: dict, prijavljeni_korisnici: dict):
             print(login)
 
 def pocetna_strana():
-    del pocetna_strana
     prijavljeni_korisnici = dict()
     svi_korisnici = dict()
     

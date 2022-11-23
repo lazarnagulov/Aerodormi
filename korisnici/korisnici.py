@@ -7,17 +7,18 @@ def podesi_korisnika(korisnik: str, lozinka: str, ime: str, prezime: str,
                       telefon: str = "", email: str = "", pol: str = "") -> dict:
     
     svi_korisnici = dict()
-    svi_korisnici.update({korisnik : {}})
-    svi_korisnici[korisnik]['korisnicko_ime'] = korisnik
-    svi_korisnici[korisnik]['lozinka'] = lozinka
-    svi_korisnici[korisnik]['ime'] = ime
-    svi_korisnici[korisnik]['prezime'] = prezime
-    svi_korisnici[korisnik]['uloga'] = uloga
-    svi_korisnici[korisnik]['pasos'] = pasos 
-    svi_korisnici[korisnik]['drzavljanstvo'] = drzavljanstvo
-    svi_korisnici[korisnik]['telefon'] = telefon 
-    svi_korisnici[korisnik]['email'] = email
-    svi_korisnici[korisnik]['pol'] = pol
+    svi_korisnici.update({korisnik : {
+        'korisnicko_ime': korisnik,
+        'lozinka': lozinka,
+        'ime': ime,
+        'prezime': prezime,
+        'uloga' : uloga,
+        'pasos' : pasos,
+        'drzavljanstvo' : drzavljanstvo,
+        'telefon' : telefon,
+        'email' : email,
+        'pol' : pol
+    }})
 
     return svi_korisnici
 
@@ -25,34 +26,33 @@ def validacija(korisnik: str, lozinka: str, ime: str, prezime: str,
                       uloga: str, pasos: str = "",
                       telefon: str = "", email: str = "") -> bool:
     if telefon == "" or telefon == None or email == "" or email == None or ime == "" or ime == None or prezime == "" or prezime == None or korisnik == None or korisnik == "" or lozinka == None or lozinka == "" or uloga == None or uloga == "":
-        raise izuzeci.NepostojeciPodaci("Greška - Obavezni podaci nisu pravilno uneti!")
+        # raise izuzeci.NepostojeciPodaci("Greška - Obavezni podaci nisu pravilno uneti!")
+        return False
         
     if email != "" and email != None:
         if "@" not in email:
-            raise izuzeci.NeispravanEmail(f"Greška - Email ({email}) ne sadrži @!")
+            # raise izuzeci.NeispravanEmail(f"Greška - Email ({email}) ne sadrži @!")
+            return False
         else:
             _, domen = str(email).split("@")
             if domen.count(".") != 1:
-                raise izuzeci.NeispravanEmail(f"Greška - Email ({email}) sadrži više od jednog domena!")
-                
-    if uloga != konstante.ULOGA_ADMIN and uloga != konstante.ULOGA_KORISNIK and uloga != konstante.ULOGA_PRODAVAC:
-        raise izuzeci.NepostojecaUloga(f"Greška - Uloga {uloga} ne postoji!")
-        
+                # raise izuzeci.NeispravanEmail(f"Greška - Email ({email}) sadrži više od jednog domena!")
+                return False
+    if uloga not in [konstante.ULOGA_ADMIN, konstante.ULOGA_KORISNIK, konstante.ULOGA_PRODAVAC]:
+        # raise izuzeci.NepostojecaUloga(f"Greška - Uloga {uloga} ne postoji!")
+        return False
     if pasos != "" and pasos != None:
         if not str(pasos).isnumeric():
-            raise izuzeci.NeispravanPasos(f"Greška - Pasoš ({pasos}) nije numerički string!")
-            
+            # raise izuzeci.NeispravanPasos(f"Greška - Pasoš ({pasos}) nije numerički string!")
+            return False
         if len(str(pasos)) != 9 or not str(pasos).isnumeric():
-            raise izuzeci.NeispravanPasos(f"Greška - Pasoš ({pasos}) ne sadrži 9 cifara!")
+            # raise izuzeci.NeispravanPasos(f"Greška - Pasoš ({pasos}) ne sadrži 9 cifara!")
+            return False
             
-    if telefon != "" and telefon != None:
-        if not str(telefon).isnumeric():
-            # print(f"Neispravan broj telefona:{telefon}")
-            raise izuzeci.NeispravanTelefon(f"Greška - Telefon ({telefon}) nije numerički string!")
-            
-    
+    if telefon != "" and telefon != None and not str(telefon).isnumeric():
+            # raise izuzeci.NeispravanTelefon(f"Greška - Telefon ({telefon}) nije numerički string!")
+            return False
     return True
-
 """
 Funkcija koja kreira novi rečnik koji predstavlja korisnika sa prosleđenim vrednostima. Kao rezultat vraća kolekciju
 svih korisnika proširenu novim korisnikom. Može se ponašati kao dodavanje ili ažuriranje, u zavisnosti od vrednosti
@@ -76,9 +76,11 @@ def kreiraj_korisnika(svi_korisnici: dict, azuriraj: bool, uloga: str, staro_kor
         return "Neuspešna validacija podataka!"
     if azuriraj:
         if staro_korisnicko_ime not in svi_korisnici:
-            raise izuzeci.NepostojeceKorisnickoIme(f"Greška - Korisnik {staro_korisnicko_ime} ne postoji!")
+            # raise izuzeci.NepostojeceKorisnickoIme(f"Greška - Korisnik {staro_korisnicko_ime} ne postoji!")
+            return "Korisnik ne postoji"
         if staro_korisnicko_ime != korisnicko_ime:
-            raise izuzeci.ZauzetoKorisnickoIme(f"Greška - Korisnik ({korisnicko_ime}) je zauzeto!")
+            # raise izuzeci.ZauzetoKorisnickoIme(f"Greška - Korisnik ({korisnicko_ime}) je zauzeto!")
+            return "Korisničko ime je zauzeto"
         else:
             svi_korisnici.update(podesi_korisnika(korisnicko_ime, lozinka, ime, prezime, uloga, pasos,drzavljanstvo,telefon,email,pol))
             return svi_korisnici
@@ -86,8 +88,10 @@ def kreiraj_korisnika(svi_korisnici: dict, azuriraj: bool, uloga: str, staro_kor
         svi_korisnici.update(podesi_korisnika(korisnicko_ime, lozinka, ime, prezime, uloga, pasos,drzavljanstvo,telefon,email,pol))
         return svi_korisnici
     else:
-        if korisnicko_ime in svi_korisnici.keys():
-            raise izuzeci.ZauzetoKorisnickoIme(f"Greška - Korisnik ({korisnicko_ime}) je zauzeto!")
+        if korisnicko_ime in svi_korisnici:
+            # raise izuzeci.ZauzetoKorisnickoIme(f"Greška - Korisnik ({korisnicko_ime}) je zauzeto!")
+            return "Korisničko ime je zauzeto"
+
         svi_korisnici.update(podesi_korisnika(korisnicko_ime, lozinka, ime, prezime, uloga, pasos,drzavljanstvo,telefon,email,pol))
         return svi_korisnici
 """
@@ -104,7 +108,7 @@ Funkcija koja učitava sve korisnika iz fajla na putanji sa zadatim separatorom.
 def ucitaj_korisnike_iz_fajla(putanja: str, separator: str) -> dict:
     with open(putanja, "r") as f:
         svi_korisnici = dict()
-        csv_citac = DictReader(f,['korisnicko_ime','lozinka','ime','prezime','uloga','pasos','drzavljanstvo','telefon','email','pol'], delimiter=separator)
+        csv_citac = DictReader(f,['korisnicko_ime','lozinka','ime','prezime','uloga','pasos','drzavljanstvo','telefon','email','pol'], delimiter = separator)
         for korisnik in csv_citac:
             svi_korisnici.update({korisnik['korisnicko_ime']: korisnik})
         return svi_korisnici       
@@ -115,28 +119,10 @@ ODBRANA: Baca grešku sa porukom ako korisnik nije pronađen.
 """
 def login(svi_korisnici, korisnik, lozinka) -> dict:
     if korisnik not in svi_korisnici.keys():
-        raise izuzeci.NeuspesnoPrijavljivanje(f"Greška - Korisničko ime {korisnik} ne postoji!")
+        # raise izuzeci.NeuspesnoPrijavljivanje(f"Greška - Korisničko ime {korisnik} ne postoji!")
+        return "Korisničko ime ne postoji!"
     if svi_korisnici[korisnik]['lozinka'] != lozinka:
-        raise izuzeci.NeuspesnoPrijavljivanje(f"Greška - Neispravna lozinka!")
+        # raise izuzeci.NeuspesnoPrijavljivanje(f"Greška - Neispravna lozinka!")
+        return "Pogrešna sifra!"
     return svi_korisnici[korisnik]
 
-def registruj(svi_korisnici: dict):
-    while True:
-        korisnicko_ime = str(input("Korisničko ime: "))
-        lozinka = str(input("Lozinka: "))
-        telefon = str(input("Kontakt telefon: "))
-        email = str(input("Email: "))
-        ime = str(input("Ime: "))
-        prezime = str(input("Prezime: "))
-        pasos = 111111111
-        drzavljanstvo = "< drzavljanstvo >"
-        pol = "< pol >"
-        povratna_informacija = kreiraj_korisnika(svi_korisnici, False, "korisnik", None, korisnicko_ime, lozinka, ime, prezime, email, pasos, drzavljanstvo, telefon, pol)
-        if type(povratna_informacija) == dict:
-            print("-------------------------------")
-            print("Uspešna registracija")
-            print("-------------------------------")
-            sacuvaj_korisnike("../korisnici.csv", ',', svi_korisnici)
-            return povratna_informacija
-        else:
-            print(povratna_informacija)

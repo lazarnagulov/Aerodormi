@@ -8,55 +8,80 @@ def prijava(svi_korisnici: dict, prijavljeni_korisnici: dict):
         system("cls")
         print("-------------------------------")
         print("Unesite korisničko ime i lozinku.")
-        print("Za povratak, unesti prazno korisničko ime")
+        print("Pritisnite enter za povratak na početnu stranu.")
         print("-------------------------------")
         korisnicko_ime = str(input("Korisničko ime: "))
         if korisnicko_ime == "":
-            break            
+            return        
         lozinka = str(input("Lozinka: "))
         login = korisnici.login(svi_korisnici, korisnicko_ime, lozinka)
         if type(login) == dict:
             prijavljeni_korisnici.update({korisnicko_ime:login})
             print("Uspešna prijava!")
             prijavljeni_interfejs(login)
-            break
+            return
         else:
             print(login)
+            sleep(0.5)
+
+def registracija(svi_korisnici: dict):
+    while True:
+        system("cls")
+        print("-------------------------------")
+        print("Unesite Vaše podatke.")
+        print("Pritisnite enter za povratak na početnu stranu.")
+        print("-------------------------------")
+        korisnicko_ime = str(input("Korisničko ime: "))
+        if korisnicko_ime == "":
+            break
+        lozinka = str(input("Lozinka: "))
+        telefon = str(input("Kontakt telefon: "))
+        email = str(input("Email: "))
+        ime = str(input("Ime: "))
+        prezime = str(input("Prezime: "))
+        pasos = ""
+        drzavljanstvo = ""
+        pol = ""
+        povratna_informacija = korisnici.kreiraj_korisnika(svi_korisnici, False, "korisnik", None, korisnicko_ime, lozinka, ime, prezime, email, pasos, drzavljanstvo, telefon, pol)
+        if type(povratna_informacija) == dict:
+            print("Uspešna registracija")
+            korisnici.sacuvaj_korisnike("../korisnici.csv", ',', svi_korisnici)
+            return povratna_informacija
+        else:
+            print(povratna_informacija)
 
 def pocetna_strana():
     prijavljeni_korisnici = dict()
     svi_korisnici = dict()
-    
+
     if svi_korisnici == {}:
         svi_korisnici = korisnici.ucitaj_korisnike_iz_fajla(konstante.PUTANJA, ",")
-        
-    system('cls')
-    print("PRODAJA AVIONSKIH KARATA")
-    print("--------------------------")
-    print("1. Registruj se")
-    print("2. Prijavi se")
-    print("3. Pregled letova")
-    print("4. Pretraga letova")
-    print("5. Izlazak")
-    unos = int(input(">> "))
-    if unos == 1:
-        novi_korisnik = korisnici.registruj(svi_korisnici)
-        korisnici.sacuvaj_korisnike(konstante.PUTANJA, ",", svi_korisnici)
-        return
-    elif unos == 2:
-        prijava(svi_korisnici, prijavljeni_korisnici)
-    elif unos == 3:
-        print("Pregled nerealizovanih letova trenutno nije dostupan!")
-        return
-    elif unos == 4:
-        print("Pretraga letova trenutno nije dostupna!")
-        return 
-    elif unos == 5:
-        print("Izlazak iz aplikacije...")
-        return
-    else:
-        print("Nepostojeća komanda")
-        return
+    
+    while True:    
+        system('cls')
+        print("-------------------------------" )
+        print("PRODAJA AVIONSKIH KARATA")
+        print("-------------------------------")
+        print("1. Registruj se")
+        print("2. Prijavi se")
+        print("3. Pregled letova")
+        print("4. Pretraga letova")
+        print("5. Izlazak")
+        unos = int(input(">> "))
+        if unos == 1:
+            novi_korisnik = registracija(svi_korisnici)
+            korisnici.sacuvaj_korisnike(konstante.PUTANJA, ",", svi_korisnici)
+        elif unos == 2:
+            prijava(svi_korisnici, prijavljeni_korisnici)
+        elif unos == 3:
+            print("Pregled nerealizovanih letova trenutno nije dostupan!")
+        elif unos == 4:
+            print("Pretraga letova trenutno nije dostupna!")
+        elif unos == 5:
+            print("Izlazak iz aplikacije...")
+            return
+        else:
+            print("Nepostojeća komanda")
 
 def zaglavlje(korisnik: dict):
     print("-------------------------------")
@@ -82,8 +107,6 @@ def korisnicki_interfejs(korisnik: dict):
         elif unos == 4:
             print("Prijava na let trenutno nije dostpuno!")
         elif unos == 5:
-            system('cls')
-            pocetna_strana()
             return
         else:
             print("Nepostojeća komanda!")

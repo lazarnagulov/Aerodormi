@@ -1,5 +1,6 @@
 from os import system
 from time import sleep
+from izuzeci import izuzeci
 from korisnici import korisnici
 from common import konstante
 
@@ -49,6 +50,7 @@ def registracija(svi_korisnici: dict):
             return povratna_informacija
         else:
             print(povratna_informacija)
+            sleep(0.5)
 
 def pocetna_strana():
     prijavljeni_korisnici = dict()
@@ -56,7 +58,7 @@ def pocetna_strana():
 
     if svi_korisnici == {}:
         svi_korisnici = korisnici.ucitaj_korisnike_iz_fajla(konstante.PUTANJA, ",")
-    
+        
     while True:    
         system('cls')
         print("-------------------------------" )
@@ -75,13 +77,16 @@ def pocetna_strana():
             prijava(svi_korisnici, prijavljeni_korisnici)
         elif unos == 3:
             print("Pregled nerealizovanih letova trenutno nije dostupan!")
+            sleep(0.5)
         elif unos == 4:
             print("Pretraga letova trenutno nije dostupna!")
+            sleep(0.5)
         elif unos == 5:
             print("Izlazak iz aplikacije...")
             return
         else:
             print("Nepostojeća komanda")
+            sleep(0.5)
 
 def zaglavlje(korisnik: dict):
     print("-------------------------------")
@@ -100,16 +105,21 @@ def korisnicki_interfejs(korisnik: dict):
         unos = int(input(">> "))
         if unos == 1:
             print("Pregled letova trenutno nije dostupno!")
+            sleep(0.5)
         elif unos == 2:
             print("Pretraga letova trenutno nije dostupno!")
+            sleep(0.5)
         elif unos == 3:
             print("Kopovina karata trenutno nije dostupno!")
+            sleep(0.5)
         elif unos == 4:
             print("Prijava na let trenutno nije dostpuno!")
+            sleep(0.5)
         elif unos == 5:
             return
         else:
             print("Nepostojeća komanda!")
+            sleep(0.5)
 
 def adminski_interfejs(korisnik: dict):
     pass
@@ -127,7 +137,7 @@ def prijavljeni_interfejs(korisnik: dict):
     elif korisnik['uloga'] == konstante.ULOGA_PRODAVAC:
         prodavacki_interfejs(korisnik)
     else:
-        print("Ne postojeća uloga!")
+        raise izuzeci.NepostojecaUloga("Fatalna greška - U bazi se nalazi korisnik sa nepostojećom ulogom!")
         
 
 

@@ -24,34 +24,28 @@ def podesi_korisnika(korisnik: str, lozinka: str, ime: str, prezime: str,
 
 def validacija(korisnik: str, lozinka: str, ime: str, prezime: str,
                       uloga: str, pasos: str = "",
-                      telefon: str = "", email: str = "") -> bool:
-    if telefon == "" or telefon == None or email == "" or email == None or ime == "" or ime == None or prezime == "" or prezime == None or korisnik == None or korisnik == "" or lozinka == None or lozinka == "" or uloga == None or uloga == "":
-        # raise izuzeci.NepostojeciPodaci("Greška - Obavezni podaci nisu pravilno uneti!")
-        return False
+                      telefon: str = "", email: str = ""):
+    if  not (telefon and email and ime and prezime and korisnik and lozinka and uloga):
+        raise izuzeci.NepostojeciPodaci("Greška - Obavezni podaci nisu pravilno uneti!")
         
-    if email != "" and email != None:
+    if email:
         if "@" not in email:
-            # raise izuzeci.NeispravanEmail(f"Greška - Email ({email}) ne sadrži @!")
-            return False
+            raise izuzeci.NeispravanEmail(f"Greška - Email ({email}) ne sadrži @!")
         else:
             _, domen = str(email).split("@")
             if domen.count(".") != 1:
-                # raise izuzeci.NeispravanEmail(f"Greška - Email ({email}) sadrži više od jednog domena!")
-                return False
+                raise izuzeci.NeispravanEmail(f"Greška - Email ({email}) sadrži više od jednog domena!")
+
     if uloga not in [konstante.ULOGA_ADMIN, konstante.ULOGA_KORISNIK, konstante.ULOGA_PRODAVAC]:
-        # raise izuzeci.NepostojecaUloga(f"Greška - Uloga {uloga} ne postoji!")
-        return False
-    if pasos != "" and pasos != None:
+        raise izuzeci.NepostojecaUloga(f"Greška - Uloga {uloga} ne postoji!")
+    if pasos:
         if not str(pasos).isnumeric():
-            # raise izuzeci.NeispravanPasos(f"Greška - Pasoš ({pasos}) nije numerički string!")
-            return False
+            raise izuzeci.NeispravanPasos(f"Greška - Pasoš ({pasos}) nije numerički string!")
         if len(str(pasos)) != 9 or not str(pasos).isnumeric():
-            # raise izuzeci.NeispravanPasos(f"Greška - Pasoš ({pasos}) ne sadrži 9 cifara!")
-            return False
+            raise izuzeci.NeispravanPasos(f"Greška - Pasoš ({pasos}) ne sadrži 9 cifara!")
             
-    if telefon != "" and telefon != None and not str(telefon).isnumeric():
-            # raise izuzeci.NeispravanTelefon(f"Greška - Telefon ({telefon}) nije numerički string!")
-            return False
+    if telefon and not str(telefon).isnumeric():
+            raise izuzeci.NeispravanTelefon(f"Greška - Telefon ({telefon}) nije numerički string!")
     return True
 """
 Funkcija koja kreira novi rečnik koji predstavlja korisnika sa prosleđenim vrednostima. Kao rezultat vraća kolekciju
@@ -76,11 +70,9 @@ def kreiraj_korisnika(svi_korisnici: dict, azuriraj: bool, uloga: str, staro_kor
         return "Neuspešna validacija podataka!"
     if azuriraj:
         if staro_korisnicko_ime not in svi_korisnici:
-            # raise izuzeci.NepostojeceKorisnickoIme(f"Greška - Korisnik {staro_korisnicko_ime} ne postoji!")
-            return "Korisnik ne postoji"
+            raise izuzeci.NepostojeceKorisnickoIme(f"Greška - Korisnik {staro_korisnicko_ime} ne postoji!")
         if staro_korisnicko_ime != korisnicko_ime:
-            # raise izuzeci.ZauzetoKorisnickoIme(f"Greška - Korisnik ({korisnicko_ime}) je zauzeto!")
-            return "Korisničko ime je zauzeto"
+            raise izuzeci.ZauzetoKorisnickoIme(f"Greška - Korisnik ({korisnicko_ime}) je zauzeto!")
         else:
             svi_korisnici.update(podesi_korisnika(korisnicko_ime, lozinka, ime, prezime, uloga, pasos,drzavljanstvo,telefon,email,pol))
             return svi_korisnici
@@ -89,8 +81,7 @@ def kreiraj_korisnika(svi_korisnici: dict, azuriraj: bool, uloga: str, staro_kor
         return svi_korisnici
     else:
         if korisnicko_ime in svi_korisnici:
-            # raise izuzeci.ZauzetoKorisnickoIme(f"Greška - Korisnik ({korisnicko_ime}) je zauzeto!")
-            return "Korisničko ime je zauzeto"
+            raise izuzeci.ZauzetoKorisnickoIme(f"Greška - Korisnik ({korisnicko_ime}) je zauzeto!")
 
         svi_korisnici.update(podesi_korisnika(korisnicko_ime, lozinka, ime, prezime, uloga, pasos,drzavljanstvo,telefon,email,pol))
         return svi_korisnici
@@ -118,11 +109,9 @@ CHECKPOINT 1: Vraća string sa greškom ako korisnik nije pronađen.
 ODBRANA: Baca grešku sa porukom ako korisnik nije pronađen.
 """
 def login(svi_korisnici, korisnik, lozinka) -> dict:
-    if korisnik not in svi_korisnici.keys():
-        # raise izuzeci.NeuspesnoPrijavljivanje(f"Greška - Korisničko ime {korisnik} ne postoji!")
-        return "Korisničko ime ne postoji!"
+    if korisnik not in svi_korisnici:
+        raise izuzeci.NeuspesnoPrijavljivanje(f"Greška - Korisničko ime {korisnik} ne postoji!")
     if svi_korisnici[korisnik]['lozinka'] != lozinka:
-        # raise izuzeci.NeuspesnoPrijavljivanje(f"Greška - Neispravna lozinka!")
-        return "Pogrešna sifra!"
+        raise izuzeci.NeuspesnoPrijavljivanje(f"Greška - Neispravna lozinka!")
     return svi_korisnici[korisnik]
 

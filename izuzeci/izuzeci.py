@@ -1,4 +1,3 @@
-
 class NeispravanPasos(Exception):
     pass
 

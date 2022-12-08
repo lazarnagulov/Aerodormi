@@ -3,6 +3,64 @@ from time import sleep
 from izuzeci import izuzeci
 from korisnici import korisnici
 from common import konstante
+from letovi import letovi
+
+def zaglavlje(korisnik: dict):
+    print("-------------------------------")
+    print(f"Dobrodošao, {korisnik['korisnicko_ime']}!")
+    print("-------------------------------")
+    print(f"ULOGA: {korisnik['uloga'].capitalize()}")
+    print("-------------------------------")
+    print("1. Pregled letova")
+    print("2. Pretraga letova")
+    print("3. Kupovina karata")
+    print("4. Prijava na let")
+    print("5. Odjava")
+
+
+def pocetna_strana():
+    prijavljeni_korisnici = dict()
+    svi_korisnici = dict()
+    svi_letovi = dict()
+
+    svi_korisnici = korisnici.ucitaj_korisnike_iz_fajla(konstante.PUTANJA_KORSINICI, ",")
+    korisnici.sacuvaj_korisnike(konstante.PUTANJA_KORSINICI, ",", svi_korisnici)
+    return
+    
+
+    svi_korisnici = korisnici.ucitaj_korisnike_iz_fajla(konstante.PUTANJA_KORSINICI, ",")
+    svi_letovi = letovi.ucitaj_letove_iz_fajla(konstante.PUTANJA_LETOVI, ",")
+
+    while True:    
+        system('cls')
+        print("-------------------------------" )
+        print("PRODAJA AVIONSKIH KARATA")
+        print("-------------------------------")
+        print("1. Registruj se")
+        print("2. Prijavi se")
+        print("3. Pregled letova")
+        print("4. Pretraga letova")
+        print("5. Izlazak")
+        unos = int(input(">> "))
+        if unos == 1:
+            novi_korisnik = registracija(svi_korisnici)
+            korisnici.sacuvaj_korisnike(konstante.PUTANJA_KORSINICI, ",", svi_korisnici)
+        elif unos == 2:
+            prijava(svi_korisnici, prijavljeni_korisnici)
+        elif unos == 3:
+            print("Pregled nerealizovanih letova trenutno nije dostupan!")
+            sleep(0.5)
+        elif unos == 4:
+            print("Pretraga letova trenutno nije dostupna!")
+            sleep(0.5)
+        elif unos == 5:
+            print("Izlazak iz aplikacije...")
+            return
+        else:
+            print("Nepostojeća komanda")
+            sleep(0.5)
+
+
 
 def prijava(svi_korisnici: dict, prijavljeni_korisnici: dict):
     while True:
@@ -52,54 +110,6 @@ def registracija(svi_korisnici: dict):
             print(povratna_informacija)
             sleep(0.5)
 
-def pocetna_strana():
-    prijavljeni_korisnici = dict()
-    svi_korisnici = dict()
-
-    if svi_korisnici == {}:
-        svi_korisnici = korisnici.ucitaj_korisnike_iz_fajla(konstante.PUTANJA, ",")
-        
-    while True:    
-        system('cls')
-        print("-------------------------------" )
-        print("PRODAJA AVIONSKIH KARATA")
-        print("-------------------------------")
-        print("1. Registruj se")
-        print("2. Prijavi se")
-        print("3. Pregled letova")
-        print("4. Pretraga letova")
-        print("5. Izlazak")
-        unos = int(input(">> "))
-        if unos == 1:
-            novi_korisnik = registracija(svi_korisnici)
-            korisnici.sacuvaj_korisnike(konstante.PUTANJA, ",", svi_korisnici)
-        elif unos == 2:
-            prijava(svi_korisnici, prijavljeni_korisnici)
-        elif unos == 3:
-            print("Pregled nerealizovanih letova trenutno nije dostupan!")
-            sleep(0.5)
-        elif unos == 4:
-            print("Pretraga letova trenutno nije dostupna!")
-            sleep(0.5)
-        elif unos == 5:
-            print("Izlazak iz aplikacije...")
-            return
-        else:
-            print("Nepostojeća komanda")
-            sleep(0.5)
-
-def zaglavlje(korisnik: dict):
-    print("-------------------------------")
-    print(f"Dobrodošao, {korisnik['korisnicko_ime']}!")
-    print("-------------------------------")
-    print(f"ULOGA: {korisnik['uloga'].capitalize()}")
-    print("-------------------------------")
-    print("1. Pregled letova")
-    print("2. Pretraga letova")
-    print("3. Kupovina karata")
-    print("4. Prijava na let")
-    print("5. Odjava")
-
 def korisnicki_interfejs(korisnik: dict):
     while True:
         unos = int(input(">> "))
@@ -138,6 +148,3 @@ def prijavljeni_interfejs(korisnik: dict):
         prodavacki_interfejs(korisnik)
     else:
         raise izuzeci.NepostojecaUloga("Fatalna greška - U bazi se nalazi korisnik sa nepostojećom ulogom!")
-        
-
-

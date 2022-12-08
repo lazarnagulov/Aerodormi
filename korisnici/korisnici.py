@@ -22,12 +22,11 @@ def podesi_korisnika(korisnik: str, lozinka: str, ime: str, prezime: str,
 
     return svi_korisnici
 
-def validacija(korisnik: str, lozinka: str, ime: str, prezime: str,
+def validacija_korisnika(korisnik: str, lozinka: str, ime: str, prezime: str,
                       uloga: str, pasos: str = "",
                       telefon: str = "", email: str = ""):
     if  not (telefon and email and ime and prezime and korisnik and lozinka and uloga):
         raise izuzeci.NepostojeciPodaci("Greška - Obavezni podaci nisu pravilno uneti!")
-        
     if email:
         if "@" not in email:
             raise izuzeci.NeispravanEmail(f"Greška - Email ({email}) ne sadrži @!")
@@ -35,18 +34,15 @@ def validacija(korisnik: str, lozinka: str, ime: str, prezime: str,
             _, domen = str(email).split("@")
             if domen.count(".") != 1:
                 raise izuzeci.NeispravanEmail(f"Greška - Email ({email}) sadrži više od jednog domena!")
-
     if uloga not in [konstante.ULOGA_ADMIN, konstante.ULOGA_KORISNIK, konstante.ULOGA_PRODAVAC]:
         raise izuzeci.NepostojecaUloga(f"Greška - Uloga {uloga} ne postoji!")
     if pasos:
         if not str(pasos).isnumeric():
             raise izuzeci.NeispravanPasos(f"Greška - Pasoš ({pasos}) nije numerički string!")
-        if len(str(pasos)) != 9 or not str(pasos).isnumeric():
+        if len(str(pasos)) != 9:
             raise izuzeci.NeispravanPasos(f"Greška - Pasoš ({pasos}) ne sadrži 9 cifara!")
-            
     if telefon and not str(telefon).isnumeric():
-            raise izuzeci.NeispravanTelefon(f"Greška - Telefon ({telefon}) nije numerički string!")
-    return True
+        raise izuzeci.NeispravanTelefon(f"Greška - Telefon ({telefon}) nije numerički string!")
 """
 Funkcija koja kreira novi rečnik koji predstavlja korisnika sa prosleđenim vrednostima. Kao rezultat vraća kolekciju
 svih korisnika proširenu novim korisnikom. Može se ponašati kao dodavanje ili ažuriranje, u zavisnosti od vrednosti
@@ -66,8 +62,7 @@ def kreiraj_korisnika(svi_korisnici: dict, azuriraj: bool, uloga: str, staro_kor
                       lozinka: str, ime: str, prezime: str, email: str = "",
                       pasos: str = "", drzavljanstvo: str = "", 
                       telefon: str = "", pol: str = "") -> dict:
-    if not validacija(korisnicko_ime, lozinka, ime, prezime, uloga, pasos, telefon, email):
-        return "Neuspešna validacija podataka!"
+    validacija_korisnika(korisnicko_ime, lozinka, ime, prezime, uloga, pasos, telefon, email)
     if azuriraj:
         if staro_korisnicko_ime not in svi_korisnici:
             raise izuzeci.NepostojeceKorisnickoIme(f"Greška - Korisnik {staro_korisnicko_ime} ne postoji!")
@@ -82,14 +77,13 @@ def kreiraj_korisnika(svi_korisnici: dict, azuriraj: bool, uloga: str, staro_kor
     else:
         if korisnicko_ime in svi_korisnici:
             raise izuzeci.ZauzetoKorisnickoIme(f"Greška - Korisnik ({korisnicko_ime}) je zauzeto!")
-
         svi_korisnici.update(podesi_korisnika(korisnicko_ime, lozinka, ime, prezime, uloga, pasos,drzavljanstvo,telefon,email,pol))
         return svi_korisnici
 """
 Funkcija koja čuva podatke o svim korisnicima u fajl na zadatoj putanji sa zadatim separatorom.
 """
 def sacuvaj_korisnike(putanja: str, separator: str, svi_korisnici: dict):
-    with open(putanja, 'w') as f:
+    with open(putanja, 'w', newline='') as f:
         csv_pisac = DictWriter(f, ['korisnicko_ime','lozinka','ime','prezime','uloga','pasos','drzavljanstvo','telefon','email','pol'], delimiter = separator)
         for korisnik in svi_korisnici:
             csv_pisac.writerow(svi_korisnici[korisnik])
@@ -114,4 +108,13 @@ def login(svi_korisnici, korisnik, lozinka) -> dict:
     if svi_korisnici[korisnik]['lozinka'] != lozinka:
         raise izuzeci.NeuspesnoPrijavljivanje(f"Greška - Neispravna lozinka!")
     return svi_korisnici[korisnik]
+
+
+"""
+Funkcija koja vrsi log out
+*
+"""
+def logout(korisnicko_ime: str):
+    pass
+
 

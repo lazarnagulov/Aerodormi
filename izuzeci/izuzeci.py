@@ -22,5 +22,17 @@ class NepostojeceKorisnickoIme(Exception):
 class NeuspesnoPrijavljivanje(Exception):
     pass
 
+class NeispravnoUnetiPodaci(Exception):
+    pass
+
 class NeispravanBrojLeta(Exception):
+    pass
+
+class NepostojeciLet(Exception):
+    pass
+
+class NeispravnoVreme(Exception):
+    pass
+
+class ZauzetoMesto(Exception):
     pass

@@ -20,17 +20,10 @@ def zaglavlje(korisnik: dict):
 
 def pocetna_strana():
     prijavljeni_korisnici = dict()
-    svi_korisnici = dict()
-    svi_letovi = dict()
-
-    svi_korisnici = korisnici.ucitaj_korisnike_iz_fajla(konstante.PUTANJA_KORSINICI, ",")
-    korisnici.sacuvaj_korisnike(konstante.PUTANJA_KORSINICI, ",", svi_korisnici)
-    return
-    
-
     svi_korisnici = korisnici.ucitaj_korisnike_iz_fajla(konstante.PUTANJA_KORSINICI, ",")
     svi_letovi = letovi.ucitaj_letove_iz_fajla(konstante.PUTANJA_LETOVI, ",")
-
+    letovi.pregled_nerealizovanih_letova(svi_letovi)
+    return
     while True:    
         system('cls')
         print("-------------------------------" )
@@ -44,7 +37,6 @@ def pocetna_strana():
         unos = int(input(">> "))
         if unos == 1:
             novi_korisnik = registracija(svi_korisnici)
-            korisnici.sacuvaj_korisnike(konstante.PUTANJA_KORSINICI, ",", svi_korisnici)
         elif unos == 2:
             prijava(svi_korisnici, prijavljeni_korisnici)
         elif unos == 3:
@@ -57,10 +49,9 @@ def pocetna_strana():
             print("Izlazak iz aplikacije...")
             return
         else:
+            korisnici.sacuvaj_korisnike(konstante.PUTANJA_KORSINICI, ",", svi_korisnici)
             print("Nepostojeća komanda")
             sleep(0.5)
-
-
 
 def prijava(svi_korisnici: dict, prijavljeni_korisnici: dict):
     while True:

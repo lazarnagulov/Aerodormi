@@ -1,3 +1,6 @@
+from letovi import letovi
+from karte import karte
+
 
 def izvestaj_prodatih_karata_za_dan_prodaje(sve_karte: dict, dan: str)->list:
     pass

@@ -1,1 +1,5 @@
-ab12,123,456,09:45,15:45,False,,"1,2,3,4",23345,42,"A,B,C,D",500
+ab12,SRB,RUS,16:10,19:10,False,prevoznik2,"1,3,4,6",1343,dobaravion,90,"A,B,C,D,E,F,G",200
+cd12,SRB,RUS,23:30,12:24,True,prevoznik3,"1,2,4,7",1923,dobaravion1,23,"A,B,C,D",800
+ef12,GEM,USA,17:20,12:24,True,prevoznik1,"1,2,4",1023,dobaravion2,50,"A,B,C,D",900
+ab32,JAP,CHI,10:00,11:24,False,prevoznik0,"1,2,4,5",1023,dobaravion3,14,"A,B",300
+ru23,SRB,CHI,10:00,15:00,True,prevoznik2,"0,6",4124,dobaravion69,69,"A,B,C,D,E,F,G",270

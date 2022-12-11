@@ -22,8 +22,7 @@ def pocetna_strana():
     prijavljeni_korisnici = dict()
     svi_korisnici = korisnici.ucitaj_korisnike_iz_fajla(konstante.PUTANJA_KORSINICI, ",")
     svi_letovi = letovi.ucitaj_letove_iz_fajla(konstante.PUTANJA_LETOVI, ",")
-    letovi.pregled_nerealizovanih_letova(svi_letovi)
-    return
+    
     while True:    
         system('cls')
         print("-------------------------------" )
@@ -40,8 +39,8 @@ def pocetna_strana():
         elif unos == 2:
             prijava(svi_korisnici, prijavljeni_korisnici)
         elif unos == 3:
-            print("Pregled nerealizovanih letova trenutno nije dostupan!")
-            sleep(0.5)
+            letovi.pregled_nerealizovanih_letova(svi_letovi)
+            sleep(3)
         elif unos == 4:
             print("Pretraga letova trenutno nije dostupna!")
             sleep(0.5)

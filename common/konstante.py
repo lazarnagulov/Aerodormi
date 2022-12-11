@@ -6,6 +6,9 @@ PUTANJA_KORSINICI = "./podaci/korisnici.csv"
 PUTANJA_LETOVI = "./podaci/letovi.csv"
 PUTANJA_KARTE = "./podaci/karte.csv"
 
+STATUS_NEREALIZOVANA_KARTA = "nerealizovana"
+STATUS_REALIZOVANA_KARTA = "realizovana"
+
 PONEDELJAK = 0
 UTORAK = 1
 SREDA = 2

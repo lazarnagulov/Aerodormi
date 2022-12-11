@@ -41,7 +41,7 @@ def validacija_leta(broj_leta: str, sifra_polazisnog_aerodroma: str, sifra_odred
                     dani: list, model: dict, cena: int):
     if not broj_leta or not sifra_odredisnog_aerodroma or not sifra_polazisnog_aerodroma or not vreme_poletanja or not vreme_sletanja or sletanje_sutra == "" or not prevoznik or not dani or not model or not cena:
         raise izuzeci.NepostojeciPodaci("Greška - Obavezni podaci nisu pravilno uneti!")
-    if not (str(broj_leta[0:2]).isalpha() and str(broj_leta[2:4]).isnumeric()):
+    if not (str(broj_leta[0:2]).isalpha() and str(broj_leta[2:4]).isnumeric()) and len(broj_leta) > 4:
         raise izuzeci.NeispravanBrojLeta(f"Greška - Broj leta mora biti oblika <slovo><slovo><broj><broj>. ({broj_leta})")
     try:
         sletanje_sati, sletanje_minuti = vreme_sletanja.split(":")
@@ -93,8 +93,8 @@ def podesi_matricu_zauzetosti(svi_letovi: dict, konkretan_let: dict) -> list:
 def checkin(svi_letovi: dict, konkretan_let: dict, red: int, pozicija: list) -> list:
     zauzetost = list()
 
-    trenutno_vreme = datetime.now() + timedelta(hours=48)
-    if trenutno_vreme > konkretan_let['datum_i_vreme_polaska']:
+    vreme_vazenja = datetime.now() + timedelta(hours=48)
+    if vreme_vazenja >= konkretan_let['datum_i_vreme_polaska']:
         raise izuzeci.NeispravnoUnetiPodaci("Greška - Checkin je već prošao")
 
     if konkretan_let.get(matrica_zauzetosti) == None:
@@ -267,7 +267,7 @@ def ucitaj_letove_iz_fajla(putanja: str, separator: str) -> dict:
                                   let['sifra_odredisnog_aerodroma'],
                                   let['vreme_poletanja'],
                                   let['vreme_sletanja'],
-                                  True if let['sletanje_sutra'] == 'True' else False,
+                                  let['sletanje_sutra'] == 'True',
                                   let['prevoznik'],
                                   dani,
                                   model,

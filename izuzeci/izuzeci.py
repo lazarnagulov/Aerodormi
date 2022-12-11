@@ -36,3 +36,6 @@ class NeispravnoVreme(Exception):
 
 class ZauzetoMesto(Exception):
     pass
+
+class NedostatakDozvole(Exception):
+    pass

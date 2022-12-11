@@ -1,7 +1,7 @@
-from interfejsi import interfejsi
+from komande import komande
 
 def main():
-   interfejsi.pocetna_strana()
+   komande.inicializacija()
 
 if __name__ == '__main__':
    main()

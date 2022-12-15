@@ -117,16 +117,11 @@ Funkcija koja vrsi log out
 """
 
 def logout(korisnicko_ime: str):
-    pass
+    korisnicko_ime = {}
 
 
 def registracija(svi_korisnici: dict):
     while True:
-        system("cls")
-        print("-------------------------------")
-        print("Unesite Vaše podatke.")
-        print("Pritisnite enter za povratak na početnu stranu.")
-        print("-------------------------------")
         korisnicko_ime = str(input("Korisničko ime: "))
         if korisnicko_ime == "":
             break
@@ -148,7 +143,7 @@ def registracija(svi_korisnici: dict):
 
 def prijava(svi_korisnici: dict) -> dict:
     while True:
-        interfejsi.prijava_interfejs()
+        interfejsi.prijava()
         korisnicko_ime = str(input("Korisničko ime: "))
         if korisnicko_ime == "":
             return        

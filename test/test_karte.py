@@ -66,7 +66,7 @@ class KarteTest(unittest.TestCase):
         self.puna_karta = {
             "broj_karte": 1,
             "sifra_leta": 1234, #sifra konkretnog leta
-            "sifra_konkretnog_leta": 1234,
+             "sifra_konkretnog_leta": 1234,
             "kupac": rand_str(10), # k ime od kupca
             "prodavac": rand_str(10),
             "sifra_sedista": odabrano_sediste,
@@ -84,7 +84,6 @@ class KarteTest(unittest.TestCase):
             os.remove(self.putanja)
 
     def test_kupovina_validna(self):
-        self.maxDiff = None
         konkretan_let = {
             "sifra": 1234,
             "broj_leta": self.pun_let["broj_leta"],
@@ -333,4 +332,3 @@ class KarteTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

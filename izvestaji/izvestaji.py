@@ -13,7 +13,7 @@ def izvestaj_prodatih_karata_za_dan_prodaje(sve_karte: dict, dan: str) -> list:
 def izvestaj_prodatih_karata_za_dan_polaska(sve_karte: dict, svi_konkretni_letovi: dict, dan: str) -> list:
     prodate_karte = list()
     for karta in sve_karte:
-        sifra_konkretnog_leta = sve_karte[karta]['sifra']
+        sifra_konkretnog_leta = sve_karte[karta]['sifra_konkretnog_leta']
         datum_polaska = svi_konkretni_letovi[sifra_konkretnog_leta]['datum_polaska']
         if dan == datum_polaska:
             prodate_karte.append(sve_karte[karta])
@@ -42,7 +42,7 @@ def izvestaj_ubc_prodatih_karata_za_dan_prodaje(sve_karte: dict, dan: str): #ubc
 def izvestaj_ubc_prodatih_karata_za_dan_polaska(sve_karte: dict, svi_konkretni_letovi: dict, dan: str): #ubc znaci ukupan broj i cena
     broj_prodatih_karata = dict()
     for karta in sve_karte:
-        datum_polaska = svi_konkretni_letovi[sve_karte[karta]['sifra']]
+        datum_polaska = svi_konkretni_letovi[sve_karte[karta]['sifra_konkretnog_leta']]
         if datum_polaska == dan:
             if karta in broj_prodatih_karata:
                 broj_prodatih_karata[karta] += 1

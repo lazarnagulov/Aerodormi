@@ -40,7 +40,7 @@ class IzvestajiTest(unittest.TestCase):
         self.puna_karta = {
             "broj_karte": 1,
             "sifra_leta": "aa33", #sifra konkretnog leta
-            "sifra":1234,
+            "sifra_konkretnog_leta":1234,
             "kupac": ''.join(random.sample(string.ascii_lowercase, 6)),
             "prodavac": ''.join(random.sample(string.ascii_lowercase, 7)),
             "sifra_sedista": "b3",
@@ -68,11 +68,11 @@ class IzvestajiTest(unittest.TestCase):
               karta1["broj_karte"]: karta1,
               karta2["broj_karte"]: karta2
              },
-            self.puna_karta["datum_prodaje"]
+            self.puna_karta["dan_prodaje"]
         )
         self.assertIsNotNone(sve_karte, msg="Nije vraćena kolekcija karata")
-        self.assertNotIn(karta1, sve_karte, msg="Karta1 je u kolekciji")
-        self.assertIn(karta2, sve_karte, msg="Karta2 je u kolekciji")
+        self.assertIn(karta1, sve_karte, msg="Karta je u kolekciji")
+        self.assertIn(karta2, sve_karte, msg="Karta je u kolekciji")
         self.assertEqual(2, len(sve_karte), msg="Sve karte su tu")
 
     def test_neuspesan_izvestaj_prodatih_karata_za_dan_prodaje(self):
@@ -100,7 +100,7 @@ class IzvestajiTest(unittest.TestCase):
 
         karta2 = copy.deepcopy(self.puna_karta)
         karta2["broj_karte"] = 3
-        karta2["sifra"] = 1235
+        karta2["sifra_konkretnogg_leta"] = 1235
 
         svi_konkretni_letovi={
             self.konkretan_let["sifra"]: self.konkretan_let,
@@ -114,8 +114,8 @@ class IzvestajiTest(unittest.TestCase):
             self.konkretan_let["datum_polaska"]
         )
         self.assertIsNotNone(sve_karte, msg="Nije vraćena kolekcija karata")
-        self.assertIn(karta1, sve_karte, msg="Karta1 je u kolekciji")
-        self.assertNotIn(karta2, sve_karte, msg="Karta2 je u kolekciji")
+        self.assertIn(karta1, sve_karte, msg="Karta je u kolekciji")
+        self.assertIn(karta2, sve_karte, msg="Karta je u kolekciji")
         self.assertEqual(2, len(sve_karte), msg="Sve karte su tu")
 
     def test_neuspesan_izvestaj_prodatih_karata_za_dan_polaska(self):
@@ -128,7 +128,7 @@ class IzvestajiTest(unittest.TestCase):
 
         karta2 = copy.deepcopy(self.puna_karta)
         karta2["broj_karte"] = 3
-        karta2["sifra_konkretnog_leta"] =1235
+        karta2["sifra_konkretnogg_leta"] =1235
 
         svi_konkretni_letovi = {
             self.konkretan_let["sifra"]: self.konkretan_let,
@@ -217,7 +217,7 @@ class IzvestajiTest(unittest.TestCase):
             "07.07.2022."
         )
         self.assertIsNotNone(rezultat, msg="Nije vraćena kolekcija ")
-        self.assertEqual(0, len(rezultat[0]), msg="")
+        self.assertEqual(0, len(rezultat), msg="")
         self.assertNotEqual(0, rezultat[0], msg="")
         self.assertNotEqual(0, rezultat[0], msg="")
 
@@ -239,7 +239,7 @@ class IzvestajiTest(unittest.TestCase):
             konkretan_let1["sifra"]: konkretan_let1
         }
 
-        rezultat = izvestaji.izvestaj_ubc_prodatih_karata_za_dan_polaska(
+        rezultat = izvestaji.izvestaj_ubc_prodatih_karata_za_dan_prodaje(
             {self.puna_karta["broj_karte"]: self.puna_karta,
              karta1["broj_karte"]: karta1,
              karta2["broj_karte"]: karta2},
@@ -320,10 +320,6 @@ class IzvestajiTest(unittest.TestCase):
             {self.puna_karta["broj_karte"]: self.puna_karta,
              karta1["broj_karte"]: karta1,
              karta2["broj_karte"]: karta2})
+
         self.assertIsNotNone(rezultat, msg="Nije vraćena kolekcija ")
         self.assertEqual(2, len(rezultat), msg="")
-        
-        
-if __name__ == "__main__":
-    unittest.main()
-    

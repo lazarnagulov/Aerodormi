@@ -1,6 +1,6 @@
 from common import konstante
 from functools import reduce
-from datetime import datetime
+from datetime import datetime, timedelta
 from izuzeci import izuzeci
 from csv import DictReader, DictWriter
 
@@ -13,15 +13,36 @@ def validacija_karte(svi_konkretni_letovi: dict, sifra_konkretnog_leta: int, slo
     if kupac['uloga'] == konstante.ULOGA_PRODAVAC:
         raise izuzeci.NedostatakDozvole(
             "Greška - Prodavac ne može da kupi kartu!")
-    if kupac['uloga'] == konstante.ULOGA_ADMIN:
-        raise izuzeci.NedostatakDozvole(
-            "Greška - Admin ne može da kupi kartu!")
-    if kwargs['prodavac']['uloga'] != konstante.ULOGA_PRODAVAC:
+    if kwargs.get('prodavac')['uloga'] != konstante.ULOGA_PRODAVAC:
         raise izuzeci.NedostatakDozvole(
             "Greška - Samo prodavac može da proda kartu")
-    if slobodna_mesta == []:
-        raise izuzeci.ZauzetoMesto("Greška - Sva mesta su zauzeta!")
+    for mesta in slobodna_mesta:
+        for sediste in mesta:
+            if sediste:
+                return
+    raise izuzeci.ZauzetoMesto("Greška - Sva mesta su zauzeta!")
 
+"""
+Funkcija vraća listu konkretnih letova koji će se dogoditi 120 minuta nakon sletanja na odredišni aerodrom
+"""
+
+def kupovina_sledece_karte(svi_letovi: dict, svi_konkretni_letovi: dict, konkretan_let: dict) -> list:
+    letovi = list()
+    
+    vreme_sletanja: datetime = konkretan_let['datum_i_vreme_dolaska']
+    vreme_sledeceg_leta: datetime = vreme_sletanja + timedelta(minutes=120)
+    
+    odredisni_aerodrom = svi_letovi[svi_konkretni_letovi[konkretan_let]['broj_leta']]['sifra_odredisnog_aerodroma']
+    
+    for konkretan_let in svi_konkretni_letovi:
+        datum_i_vreme = svi_konkretni_letovi[konkretan_let]['datum_i_vreme_polaska']
+        aerodrom = svi_letovi[svi_konkretni_letovi[konkretan_let]]['sifra_odredisnog_aerodroma']
+        if  datum_i_vreme <= vreme_sledeceg_leta and datum_i_vreme >= vreme_sletanja and odredisni_aerodrom == aerodrom:
+             letovi.append(svi_konkretni_letovi[konkretan_let])
+    
+    return letovi
+    
+    
 
 """
 Kupovina karte proverava da li prosleđeni konkretni let postoji i da li ima slobodnih mesta. U tom slučaju se karta 
@@ -39,11 +60,10 @@ def kupovina_karte(
     putnici: list,
     slobodna_mesta: list,
     kupac: dict,
-    **kwargs
+    **kwargs # prodavac, datum prodaje
 ) -> dict:
     global sledeci_broj_karte
-    validacija_karte(svi_konkretni_letovi, sifra_konkretnog_leta,
-                     slobodna_mesta, kupac, **kwargs)
+    validacija_karte(svi_konkretni_letovi, sifra_konkretnog_leta,slobodna_mesta, kupac, **kwargs)
     sve_karte.update(
                       {
                         'broj_karte': sledeci_broj_karte,

@@ -91,7 +91,7 @@ def ispis_leta(let: dict):
 
 
 def matrica_zauzetosti(konkretan_let: dict) -> list:
-    return konkretan_let['matrica_zauzetosti']
+    return konkretan_let['zauzetost']
 
 
 def podesi_matricu_zauzetosti(svi_letovi: dict, konkretan_let: dict) -> list:
@@ -101,7 +101,7 @@ def podesi_matricu_zauzetosti(svi_letovi: dict, konkretan_let: dict) -> list:
     pozicije_sedista = let['model']['pozicije_sedista']
     for _ in range(broj_redova):
         matrica_zauzetosti.append(pozicije_sedista)
-    konkretan_let['matrica_zauzetosti'] = matrica_zauzetosti
+    konkretan_let['zauzetost'] = matrica_zauzetosti
     return matrica_zauzetosti
 
 
@@ -145,9 +145,11 @@ Ova funkcija sluzi samo za prikaz
 
 
 def pregled_nerealizovanih_letova(svi_letovi: dict):
+    trenutni_dan = datetime.now().weekday()
     konstante.ZAGLAVLJE_LET()
     for let in svi_letovi:
-        ispis_leta(svi_letovi[let])
+        if trenutni_dan in svi_letovi[let]['dani']:
+            ispis_leta(svi_letovi[let])
 
 
 """
@@ -161,13 +163,13 @@ def pretraga_letova(svi_letovi: dict, konkretni_letovi: dict, polaziste: str = "
     filtrirano = list()
     for konkretan_let in konkretni_letovi:
         let = svi_letovi[konkretni_letovi[konkretan_let]['broj_leta']]
-        if datum_polaska == konkretni_letovi[konkretan_let]['datum_i_vreme_polaska'] or datum_polaska == "":
-            if datum_dolaska == konkretni_letovi[konkretan_let]['datum_i_vreme_dolaska'] or datum_dolaska == "":
-                if let['sifra_odredisnog_aerodorma'] == odrediste or odrediste == "":
-                    if let['sifra_polazisnog_aerodroma'] == polaziste or polaziste == "":
-                        if let['vreme_poletanja'] == vreme_poletanja or vreme_poletanja == "":
-                            if let['vreme_sletanja'] == vreme_sletanja or vreme_sletanja == "":
-                                if let['prevoznik'] == prevoznik or prevoznik == "":
+        if datum_polaska == "" or datum_polaska.date() == konkretni_letovi[konkretan_let]['datum_i_vreme_polaska'].date():
+            if datum_dolaska == "" or datum_dolaska.date() == konkretni_letovi[konkretan_let]['datum_i_vreme_dolaska'].date():
+                if odrediste == "" or let['sifra_odredisnog_aerodorma'] == odrediste:
+                    if polaziste == "" or let['sifra_polazisnog_aerodroma'] == polaziste:
+                        if vreme_poletanja == "" or let['vreme_poletanja'] == vreme_poletanja:
+                            if vreme_sletanja == "" or let['vreme_sletanja'] == vreme_sletanja:
+                                if prevoznik == "" or let['prevoznik'] == prevoznik:
                                     filtrirano.append(
                                         konkretni_letovi[konkretan_let])
     return filtrirano
@@ -191,8 +193,7 @@ def trazenje_10_najjeftinijih_letova(svi_letovi: dict, polaziste: str = "", odre
             i += 1
 
 
-def kreiranje_konkretnih_letova(svi_letovi: dict,
-                                broj_leta: str, datum_pocetka_operativnosti: datetime, datum_kraja_operativnosti: datetime) -> dict:
+def kreiranje_konkretnih_letova(svi_letovi: dict, broj_leta: str, datum_pocetka_operativnosti: datetime, datum_kraja_operativnosti: datetime) -> dict:
     global sifra_konkretnog_leta
 
     datum_dolaska = datum_pocetka_operativnosti
@@ -201,19 +202,25 @@ def kreiranje_konkretnih_letova(svi_letovi: dict,
     if svi_letovi[broj_leta]['sletanje_sutra']:
         datum_dolaska += timedelta(days=1)
 
-    while datum_kraja_operativnosti >= datum_pocetka_operativnosti:
-        konkretni_letovi.update({
-            sifra_konkretnog_leta:
-                {
-                    'sifra': sifra_konkretnog_leta,
-                    'broj_leta': broj_leta,
-                    'datum_i_vreme_polaska': datum_pocetka_operativnosti,
-                    'datum_i_vreme_dolaska': datum_dolaska,
-                }
-        })
-        sifra_konkretnog_leta += 1
-        datum_pocetka_operativnosti += timedelta(days=7)
-        datum_dolaska += timedelta(days=7)
+    dan_u_nedelji = datum_pocetka_operativnosti
+    kraj_nedelje = datum_pocetka_operativnosti + timedelta(days = 7)
+    while kraj_nedelje >= dan_u_nedelji:
+        if dan_u_nedelji.weekday() in svi_letovi[broj_leta]['dani']:
+            trenutni_dan = dan_u_nedelji
+            while datum_kraja_operativnosti >= trenutni_dan:
+                konkretni_letovi.update({
+                    sifra_konkretnog_leta:
+                        {
+                            'sifra': sifra_konkretnog_leta,
+                            'broj_leta': broj_leta,
+                            'datum_i_vreme_polaska': trenutni_dan,
+                            'datum_i_vreme_dolaska': datum_dolaska,
+                        }
+                })
+                sifra_konkretnog_leta += 1
+                trenutni_dan += timedelta(days=7)
+                datum_dolaska += timedelta(days=7)
+        dan_u_nedelji += timedelta(days = 1)
 
     return konkretni_letovi
 
@@ -237,8 +244,7 @@ def kreiranje_letova(svi_letovi: dict, broj_leta: str, sifra_polazisnog_aerodrom
     svi_letovi.update(podesi_let(broj_leta, sifra_polazisnog_aerodroma, sifra_odredisnog_aerodorma,
                       vreme_poletanja, vreme_sletanja, datum_pocetka_operativnosti, datum_kraja_operativnosti,  sletanje_sutra, prevoznik, dani, model, cena))
     if datum_kraja_operativnosti != None and datum_kraja_operativnosti != None:
-        kreiranje_konkretnih_letova(
-            svi_letovi, broj_leta, datum_pocetka_operativnosti, datum_kraja_operativnosti)
+        kreiranje_konkretnih_letova(svi_letovi, broj_leta, datum_pocetka_operativnosti, datum_kraja_operativnosti)
     return svi_letovi
 
 

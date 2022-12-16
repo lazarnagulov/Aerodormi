@@ -56,7 +56,6 @@ def prijava_na_let():
     print("Prijava na let")
     print("-------------------------------" )
 
-
 def prijava():
     system("cls")
     print("-------------------------------")
@@ -97,16 +96,29 @@ def adminski_pocetni(korisnik: dict):
     print("K: Korisničke komande")
     print("X: Odjava")
 
-def prodavacki_pocetni(korisnik: dict):
-    system('cls')
-    print("-------------------------------")
-    print(f"Dobrodošao, {korisnik['korisnicko_ime']}!")
-    print("-------------------------------")
-    print(f"ULOGA: {korisnik['uloga'].capitalize()}")
-    print("-------------------------------")
-    print("P: Prodavačke komande")
-    print("K: Korisničke komande")
-    print("X: Odjava")
+# def prodavacki_pocetni(korisnik: dict):
+#     system('cls')
+#     print("-------------------------------")
+#     print(f"Dobrodošao, {korisnik['korisnicko_ime']}!")
+#     print("-------------------------------")
+#     print(f"ULOGA: {korisnik['uloga'].capitalize()}")
+#     print("-------------------------------")
+#     print("P: Prodavačke komande")
+#     print("K: Korisničke komande")
+#     print("X: Odjava")
+
+def pretraga_karata():
+    pass
+
+def registracija_novog_prodavca():
+    pass
+
+def kreiranje_letova():
+    pass
+
+def izvestaji():
+    pass
+
 
 def adminski(korisnik: dict):
     system('cls')
@@ -121,6 +133,7 @@ def adminski(korisnik: dict):
     print("4: Izmena letova")
     print("5: Brisanje karata")
     print("6: Izveštaji")
+    print("X: Nazad")
     
 def prodavacki(korisnik: dict):
     system('cls')

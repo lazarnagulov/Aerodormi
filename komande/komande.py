@@ -8,6 +8,7 @@ from interfejsi import interfejsi
 from datetime import datetime, timedelta
 from korisnici import korisnici
 from letovi import letovi
+from konkretni_letovi import konkretni_letovi
 from karte import karte
 from izvestaji import izvestaji
 
@@ -36,7 +37,8 @@ def pretraga_letova():
 
     filtrirani_letovi = letovi.pretraga_letova(svi_letovi, svi_konkretni_letovi, polaziste,
                                                odrediste, datum_polaska, datum_dolaska, vreme_poletanja, vreme_sletanja, prevoznik)
-    print(filtrirani_letovi)
+    for let in filtrirani_letovi:
+        letovi.ispis_leta(let)
 
     while True:
         unos = input("Pritisnite enter da biste nastavili. ")
@@ -46,7 +48,59 @@ def pretraga_letova():
 # -------------------- CHECKIN -------------------- #
 
 def prijava_na_let():
-    pass
+    global korisnik, svi_konkretni_letovi, sve_karte, svi_korisnici
+    
+    putnici = list()
+    
+    def odabir_sedista(putnici: list, sifra_karte: int):
+        konkretan_let = svi_konkretni_letovi[sve_karte[sifra_karte]['sifra_konkretnog_leta']]
+        zauzetost = konkretan_let['zauzetost']
+        
+        print(zauzetost)
+                
+        red = input("Unesite red sedišta: ")
+        pozicija = input("Unesite poziciju sedišta: ")
+        letovi.checkin(svi_letovi, konkretan_let, red, pozicija)
+        
+    while True:
+        unos = input(">> ")
+        if unos == "1":
+            broj_karte = int(input("Unesite broj karte: "))
+            
+            if broj_karte not in sve_karte:
+                print("Karta ne postoji")
+                continue
+            
+            if korisnik not in sve_karte[broj_karte]['putnici']:
+                print("Korisnik nema kartu")
+            else:      
+                if not korisnik.get('pasos'):
+                    pasos = input("Unesite broj pasoša: ")
+                    korisnik['pasos'] = pasos
+                if not korisnik.get('drzavljanstvo'):
+                    drzavljanstvo = input("Unesite državljanstvo: ")
+                    korisnik['drzavljanstvo'] = drzavljanstvo
+                if not korisnik.get('pol'):
+                    pol = input("Unesite pol: ")
+                    korisnik['pol'] = pol 
+                
+                if korisnik not in putnici:
+                    putnici.append(korisnik)
+                
+                odabir_sedista(putnici, broj_karte)
+        elif unos == "2":
+            print(karte.pregled_nerealizovanaih_karata(korisnik, sve_karte))
+            while True:
+                kraj = input("Pritisnite enter.")
+                if kraj == "":
+                    break
+        elif unos == "X":
+            return
+        else:
+            print("Nepostojeća komanda")
+
+        interfejsi.prijava_na_let()
+        
 
 # -------------------- KARTE -------------------- #
 
@@ -88,8 +142,7 @@ def kupovina_karte():
                 except:
                     slobodna_mesta = letovi.podesi_matricu_zauzetosti(
                         svi_letovi, svi_konkretni_letovi[sifra_konkretnog_leta])
-                karta = karte.kupovina_karte(
-                    sve_karte, svi_konkretni_letovi, sifra_konkretnog_leta, putnici, slobodna_mesta, korisnik)
+                karta = karte.kupovina_karte(sve_karte, svi_konkretni_letovi, sifra_konkretnog_leta, putnici, slobodna_mesta, korisnik)
                 return True
             elif unos == "X":
                 return False
@@ -103,17 +156,7 @@ def kupovina_karte():
             print("2: Ne")
             unos = input(">> ")
             if unos == "1":
-                datum_sletanja = svi_konkretni_letovi[sifra_konkretnog_leta]['datum_i_vreme_dolaska']
-                poslednji_termin = datum_sletanja + timedelta(minutes=120)
-                odrediste = svi_letovi[svi_konkretni_letovi[sifra_konkretnog_leta]
-                                       ['broj_leta']]['sifra_odredisnog_aerodorma']
-
-                filtrirani = letovi.pretraga_letova(
-                    svi_letovi, svi_konkretni_letovi, odrediste, "", datum_sletanja, "", "", "", "")
-                moguci_letovi = list()
-                for let in filtrirani:
-                    if let['datum_i_vreme_polaska'] >= datum_sletanja and let['datum_i_vreme_polaska'] <= poslednji_termin:
-                        moguci_letovi.append(let)
+                moguci_letovi = karte.kupovina_sledece_karte(svi_letovi, svi_konkretni_letovi, sifra_konkretnog_leta)
                 print(moguci_letovi)
 
                 if moguci_letovi == []:
@@ -192,7 +235,7 @@ def prijavljeni_korisnik():
     while True:
         unos = input(">> ")
         if unos == "1":
-            karte.pregled_nerealizovanaih_karata(korisnik, sve_karte)
+            print(karte.pregled_nerealizovanaih_karata(korisnik, sve_karte))            
             while True:
                 kraj = input("Pritisnite enter.")
                 if kraj == "":
@@ -204,12 +247,25 @@ def prijavljeni_korisnik():
             interfejsi.kupovina_karata()
             kupovina_karte()
         elif unos == "4":
-            print("Prijava na let trenutno nije dostpuno!")
-            sleep(0.5)
+            interfejsi.prijava_na_let()
+            prijava_na_let()
         elif unos == "5":
-            pass
+            polaziste = input("Unesite polazište: ")
+            odrediste = input("Unesite odredište: ")
+            letovi.trazenje_10_najjeftinijih_letova(
+                svi_letovi, polaziste, odrediste)
+            while True:
+                kraj = input("Pritisnite enter.")
+                if kraj == "":
+                    break
         elif unos == "6":
             print(polasci())
+            while True:
+                kraj = input("Pritisnite enter.")
+                if kraj == "":
+                    break
+        elif unos == "7":
+            print(karte.pregled_nerealizovanaih_karata(korisnik, sve_karte))
             while True:
                 kraj = input("Pritisnite enter.")
                 if kraj == "":
@@ -434,8 +490,7 @@ def inicializacija():
     sve_karte = karte.ucitaj_karte_iz_fajla(konstante.PUTANJA_KARTE, ",")
     svi_letovi = letovi.ucitaj_letove_iz_fajla(konstante.PUTANJA_LETOVI, ",")
     for let in svi_letovi:
-        svi_konkretni_letovi.update(letovi.kreiranje_konkretnih_letova(
-            svi_letovi, let, datetime.now(), datetime.now() + timedelta(days=30)))
+        svi_konkretni_letovi.update(konkretni_letovi.kreiranje_konkretnog_leta(svi_konkretni_letovi, svi_letovi[let]))
 
     interfejsi.pocetna_strana()
     pocetna_strana()

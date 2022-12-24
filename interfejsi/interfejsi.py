@@ -55,6 +55,10 @@ def prijava_na_let():
     print("-------------------------------" )
     print("Prijava na let")
     print("-------------------------------" )
+    print("1: Unesite broj karte")
+    print("2: Prikažu kopljene karte")
+    print("3: Pretraga karata")
+    print("X: Nazad")
 
 def prijava():
     system("cls")
@@ -95,17 +99,6 @@ def adminski_pocetni(korisnik: dict):
     print("A: Adminske komande")
     print("K: Korisničke komande")
     print("X: Odjava")
-
-# def prodavacki_pocetni(korisnik: dict):
-#     system('cls')
-#     print("-------------------------------")
-#     print(f"Dobrodošao, {korisnik['korisnicko_ime']}!")
-#     print("-------------------------------")
-#     print(f"ULOGA: {korisnik['uloga'].capitalize()}")
-#     print("-------------------------------")
-#     print("P: Prodavačke komande")
-#     print("K: Korisničke komande")
-#     print("X: Odjava")
 
 def pretraga_karata():
     pass
@@ -164,4 +157,5 @@ def korisnicki(korisnik: dict):
     print("4: Prijava na let")
     print("5: 10 najjeftinijih letova")
     print("6: Polasci")
+    print("7: Prikaži kupljene karte")
     print("X: Nazad")

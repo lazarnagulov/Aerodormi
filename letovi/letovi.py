@@ -1,11 +1,12 @@
 from csv import DictReader, DictWriter
 from common import konstante
 from izuzeci import izuzeci
-from operator import itemgetter
+from konkretni_letovi import konkretni_letovi
 from datetime import datetime, timedelta
+# from tabulate import tabulate
 
 
-sifra_konkretnog_leta = 1000
+sifra_konkretnog_leta = 1
 
 
 def podesi_let(broj_leta: str, sifra_polazisnog_aerodroma: str, sifra_odredisnog_aerodorma: str,
@@ -43,13 +44,14 @@ def podesi_let(broj_leta: str, sifra_polazisnog_aerodroma: str, sifra_odredisnog
 
 def validacija_leta(broj_leta: str, sifra_polazisnog_aerodroma: str, sifra_odredisnog_aerodorma: str,
                     vreme_poletanja: str, vreme_sletanja: str,  sletanje_sutra: bool, prevoznik: str,
-                    dani: list, model: dict, cena: int):
+                    dani: list, model: dict, cena: int, datum_pocetka_operativnosti: datetime = None,
+                     datum_kraja_operativnosti: datetime = None):
     if not broj_leta or not sifra_odredisnog_aerodorma or not sifra_polazisnog_aerodroma or not vreme_poletanja or not vreme_sletanja or sletanje_sutra == "" or not prevoznik or not dani or not model or not cena:
         raise izuzeci.NepostojeciPodaci(
             "Greška - Obavezni podaci nisu pravilno uneti!")
     if len(sifra_odredisnog_aerodorma) != 3 or len(sifra_polazisnog_aerodroma) != 3:
         raise izuzeci.NeispravnoUnetiPodaci(
-            "Greška - Šifre aerodroma ne poštuju IATA.")
+            "Greška - Šifre aerodroma ne poštuju IATA.")    
     if not (str(broj_leta[0:2]).isalpha() and str(broj_leta[2:4]).isnumeric()) and len(broj_leta) > 4:
         raise izuzeci.NeispravanBrojLeta(
             f"Greška - Broj leta mora biti oblika <slovo><slovo><broj><broj>. ({broj_leta})")
@@ -74,25 +76,29 @@ def validacija_leta(broj_leta: str, sifra_polazisnog_aerodroma: str, sifra_odred
         raise izuzeci.NeispravnoUnetiPodaci(
             f"Greška - cena mora biti broj veći od 0. ({cena})")
 
-
+    if datum_kraja_operativnosti != None and datum_pocetka_operativnosti != None and datum_kraja_operativnosti < datum_pocetka_operativnosti:
+        raise izuzeci.NeispravnoUnetiPodaci("Greška - Kraj operativnosti je pre početka.")
+    
 def ispis_leta(let: dict):
-    for podatak in let:
-        vrednost_podatka = let[podatak]
-        if podatak == 'cena':
-            print(f"| {vrednost_podatka} |")
-            return
-        if podatak == 'prevoznik' or podatak == 'model':
-            continue
-        if podatak == 'sletanje_sutra':
-            print("|  Da   ", end="") if vrednost_podatka else print(
-                "|  Ne   ", end="")
-            continue
-        print(f"| {vrednost_podatka} ", end="")
+    print(let)
+    # tabela = list()
+    # for podatak in let:
+    #     tabela.append([podatak, let[podatak]])
+    
+    # print(tabulate(tabela))
 
-
+"""
+Funkcija koja vraća matricu zauzetosti sedišta. Svaka stavka sadrži oznaku pozicije i oznaku reda.
+Primer: [[True, False], [False, True]] -> A1 i B2 su zauzeti, A2 i B1 su slobodni
+""" 
+    
 def matrica_zauzetosti(konkretan_let: dict) -> list:
     return konkretan_let['zauzetost']
 
+"""
+Pomoćna funkcija koja podešava matricu zauzetosti leta tako da sva mesta budu slobodna.
+Prolazi kroz sve redove i sve poziciej sedišta i postavlja ih na "nezauzeto".
+"""
 
 def podesi_matricu_zauzetosti(svi_letovi: dict, konkretan_let: dict) -> list:
     matrica_zauzetosti = list()
@@ -146,9 +152,7 @@ Ova funkcija sluzi samo za prikaz
 
 def pregled_nerealizovanih_letova(svi_letovi: dict):
     trenutni_dan = datetime.now().weekday()
-    konstante.ZAGLAVLJE_LET()
     for let in svi_letovi:
-        if trenutni_dan in svi_letovi[let]['dani']:
             ispis_leta(svi_letovi[let])
 
 
@@ -163,13 +167,13 @@ def pretraga_letova(svi_letovi: dict, konkretni_letovi: dict, polaziste: str = "
     filtrirano = list()
     for konkretan_let in konkretni_letovi:
         let = svi_letovi[konkretni_letovi[konkretan_let]['broj_leta']]
-        if datum_polaska == "" or datum_polaska.date() == konkretni_letovi[konkretan_let]['datum_i_vreme_polaska'].date():
-            if datum_dolaska == "" or datum_dolaska.date() == konkretni_letovi[konkretan_let]['datum_i_vreme_dolaska'].date():
-                if odrediste == "" or let['sifra_odredisnog_aerodorma'] == odrediste:
-                    if polaziste == "" or let['sifra_polazisnog_aerodroma'] == polaziste:
-                        if vreme_poletanja == "" or let['vreme_poletanja'] == vreme_poletanja:
-                            if vreme_sletanja == "" or let['vreme_sletanja'] == vreme_sletanja:
-                                if prevoznik == "" or let['prevoznik'] == prevoznik:
+        if not datum_polaska or datum_polaska.date() == konkretni_letovi[konkretan_let]['datum_i_vreme_polaska'].date():
+            if not datum_dolaska or datum_dolaska.date() == konkretni_letovi[konkretan_let]['datum_i_vreme_dolaska'].date():
+                if not odrediste or let['sifra_odredisnog_aerodorma'] == odrediste:
+                    if not polaziste or let['sifra_polazisnog_aerodroma'] == polaziste:
+                        if not vreme_poletanja or let['vreme_poletanja'] == vreme_poletanja:
+                            if not vreme_sletanja or let['vreme_sletanja'] == vreme_sletanja:
+                                if not prevoznik or let['prevoznik'] == prevoznik:
                                     filtrirano.append(
                                         konkretni_letovi[konkretan_let])
     return filtrirano
@@ -182,8 +186,7 @@ def trazenje_10_najjeftinijih_letova(svi_letovi: dict, polaziste: str = "", odre
             if odrediste == svi_letovi[let]['sifra_odredisnog_aerodorma'] or odrediste == "":
                 filtrirano.append(svi_letovi[let])
     sortirano = sorted(filtrirano, key=lambda l: l['cena'])
-    konstante.ZAGLAVLJE_LET()
-    if len(sortirano) < 10:
+    if len(sortirano) <= 10:
         for let in sortirano:
             ispis_leta(let)
     else:
@@ -191,38 +194,6 @@ def trazenje_10_najjeftinijih_letova(svi_letovi: dict, polaziste: str = "", odre
         while i < 10:
             ispis_leta(let[i])
             i += 1
-
-
-def kreiranje_konkretnih_letova(svi_letovi: dict, broj_leta: str, datum_pocetka_operativnosti: datetime, datum_kraja_operativnosti: datetime) -> dict:
-    global sifra_konkretnog_leta
-
-    datum_dolaska = datum_pocetka_operativnosti
-    konkretni_letovi = dict()
-
-    if svi_letovi[broj_leta]['sletanje_sutra']:
-        datum_dolaska += timedelta(days=1)
-
-    dan_u_nedelji = datum_pocetka_operativnosti
-    kraj_nedelje = datum_pocetka_operativnosti + timedelta(days = 7)
-    while kraj_nedelje >= dan_u_nedelji:
-        if dan_u_nedelji.weekday() in svi_letovi[broj_leta]['dani']:
-            trenutni_dan = dan_u_nedelji
-            while datum_kraja_operativnosti >= trenutni_dan:
-                konkretni_letovi.update({
-                    sifra_konkretnog_leta:
-                        {
-                            'sifra': sifra_konkretnog_leta,
-                            'broj_leta': broj_leta,
-                            'datum_i_vreme_polaska': trenutni_dan,
-                            'datum_i_vreme_dolaska': datum_dolaska,
-                        }
-                })
-                sifra_konkretnog_leta += 1
-                trenutni_dan += timedelta(days=7)
-                datum_dolaska += timedelta(days=7)
-        dan_u_nedelji += timedelta(days = 1)
-
-    return konkretni_letovi
 
 
 """
@@ -239,12 +210,9 @@ def kreiranje_letova(svi_letovi: dict, broj_leta: str, sifra_polazisnog_aerodrom
                      dani: list, model: dict, cena: float, datum_pocetka_operativnosti: datetime = None,
                      datum_kraja_operativnosti: datetime = None
                      ) -> dict:
-    validacija_leta(broj_leta, sifra_polazisnog_aerodroma, sifra_odredisnog_aerodorma,
-                    vreme_poletanja, vreme_sletanja, sletanje_sutra, prevoznik, dani, model, cena)
-    svi_letovi.update(podesi_let(broj_leta, sifra_polazisnog_aerodroma, sifra_odredisnog_aerodorma,
-                      vreme_poletanja, vreme_sletanja, datum_pocetka_operativnosti, datum_kraja_operativnosti,  sletanje_sutra, prevoznik, dani, model, cena))
-    if datum_kraja_operativnosti != None and datum_kraja_operativnosti != None:
-        kreiranje_konkretnih_letova(svi_letovi, broj_leta, datum_pocetka_operativnosti, datum_kraja_operativnosti)
+    validacija_leta(broj_leta, sifra_polazisnog_aerodroma, sifra_odredisnog_aerodorma, vreme_poletanja, vreme_sletanja, sletanje_sutra, prevoznik, dani, model, cena, datum_pocetka_operativnosti, datum_kraja_operativnosti)
+    let = podesi_let(broj_leta, sifra_polazisnog_aerodroma, sifra_odredisnog_aerodorma, vreme_poletanja, vreme_sletanja, datum_pocetka_operativnosti, datum_kraja_operativnosti,  sletanje_sutra, prevoznik, dani, model, cena)
+    svi_letovi.update(let)
     return svi_letovi
 
 
@@ -259,32 +227,13 @@ CHECKPOINT2: Baca grešku sa porukom ako podaci nisu validni.
 
 def izmena_letova(svi_letovi: dict, broj_leta: str, sifra_polazisnog_aerodroma: str, sifra_odredisnog_aerodorma: str,
                   vreme_poletanja: str, vreme_sletanja: str, sletanje_sutra:   bool, prevoznik: str,
-                  dani: list, model: dict, cena: float) -> dict:
+                  dani: list, model: dict, cena: float, datum_pocetka_operativnosti: datetime,
+                  datum_kraja_operativnosti: datetime) -> dict:  
     if broj_leta not in svi_letovi:
         raise izuzeci.NepostojeciLet("Greška - Broj leta ne postoji.")
     validacija_leta(broj_leta, sifra_polazisnog_aerodroma, sifra_odredisnog_aerodorma,
-                    vreme_poletanja, vreme_sletanja, sletanje_sutra, prevoznik, dani, model, cena)
-    svi_letovi.update({
-        broj_leta:
-        {
-            'broj_leta': broj_leta,
-            'sifra_polazisnog_aerodroma': sifra_polazisnog_aerodroma,
-            'sifra_odredisnog_aerodorma': sifra_odredisnog_aerodorma,
-            'vreme_poletanja': vreme_poletanja,
-            'vreme_sletanja': vreme_sletanja,
-            'sletanje_sutra': sletanje_sutra,
-            'prevoznik': prevoznik,
-            'dani': dani,
-            'model':
-                {
-                    'id': model['id'],
-                    'naziv': model['naziv'],
-                    'broj_redova': model['broj_redova'],
-                    'pozicije_sedista': model['pozicije_sedista']
-                },
-            'cena': cena
-        }
-    })
+                    vreme_poletanja, vreme_sletanja, sletanje_sutra, prevoznik, dani, model, cena, datum_pocetka_operativnosti, datum_kraja_operativnosti)
+    svi_letovi.update(podesi_let(broj_leta, sifra_polazisnog_aerodroma, sifra_odredisnog_aerodorma, vreme_poletanja, vreme_sletanja, datum_pocetka_operativnosti, datum_kraja_operativnosti, sletanje_sutra, prevoznik, dani, model, cena))
     return svi_letovi
 
 

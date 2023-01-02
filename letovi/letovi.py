@@ -2,12 +2,10 @@ from csv import DictReader, DictWriter
 from common import konstante
 from izuzeci import izuzeci
 from konkretni_letovi import konkretni_letovi
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 # from tabulate import tabulate
 
-
 sifra_konkretnog_leta = 1
-
 
 def podesi_let(broj_leta: str, sifra_polazisnog_aerodroma: str, sifra_odredisnog_aerodorma: str,
                vreme_poletanja: str, vreme_sletanja: str, datum_pocetka_operativnosti: datetime, datum_kraja_operativnosti: datetime, sletanje_sutra: bool, prevoznik: str,
@@ -104,44 +102,86 @@ def podesi_matricu_zauzetosti(svi_letovi: dict, konkretan_let: dict) -> list:
     matrica_zauzetosti = list()
     let = svi_letovi[konkretan_let['broj_leta']]
     broj_redova = let['model']['broj_redova']
-    pozicije_sedista = let['model']['pozicije_sedista']
+    pozicije_sedista = [False for i in range(broj_redova)]
     for _ in range(broj_redova):
         matrica_zauzetosti.append(pozicije_sedista)
-    konkretan_let['zauzetost'] = matrica_zauzetosti
+    konkretan_let.update({'zauzetost': matrica_zauzetosti})
     return matrica_zauzetosti
 
+"""
+Funkcija koja zauzima sedište na datoj poziciji u redu, najkasnije 48h pre poletanja. Redovi počinju od 1. 
+Vraća grešku ako se sedište ne može zauzeti iz bilo kog razloga.
+"""
 
-def checkin(svi_letovi: dict, konkretan_let: dict, red: int, pozicija: list):
+def checkin(karta: dict, svi_letovi: dict, konkretni_let: dict, red: int, pozicija: str) -> (dict, dict):
     zauzetost = list()
 
     vreme_vazenja = datetime.now() + timedelta(hours=48)
-    if vreme_vazenja > konkretan_let['datum_i_vreme_polaska']:
+    if vreme_vazenja > konkretni_let['datum_i_vreme_polaska']:
         raise izuzeci.NeispravnoUnetiPodaci("Greška - Checkin je već prošao")
 
-    if konkretan_let.get(matrica_zauzetosti) == None:
-        zauzetost = podesi_matricu_zauzetosti(svi_letovi, konkretan_let)
+    if konkretni_let.get('zauzetost') == None:
+        zauzetost = podesi_matricu_zauzetosti(svi_letovi, konkretni_let)
     else:
-        zauzetost = matrica_zauzetosti(konkretan_let)
+        zauzetost = matrica_zauzetosti(konkretni_let)
 
-    ukupan_br_redova = svi_letovi[konkretan_let['broj_leta']
-                                  ]['model']['broj_redova']
+    ukupan_br_redova = svi_letovi[konkretni_let['broj_leta']]['model']['broj_redova']
     if red < 0 or red > ukupan_br_redova:
         raise izuzeci.NeispravnoUnetiPodaci("Greška - Red ne postoji!")
 
-    pozicije_sedista = svi_letovi[konkretan_let['broj_leta']
-                                  ]['model']['pozicije_sedista']
-    for konkretna_pozicija in pozicija:
-        if konkretna_pozicija not in pozicije_sedista:
-            raise izuzeci.NeispravnoUnetiPodaci(
-                f"Greška - Pozicija ne postoji! ({konkretna_pozicija} -> {pozicije_sedista})")
+    pozicije_sedista: list = svi_letovi[konkretni_let['broj_leta']]['model']['pozicije_sedista']
+    
+        
+    if pozicija not in pozicije_sedista:
+        raise izuzeci.NeispravnoUnetiPodaci("Greška - Pozicija nije pravilno uneta!")
 
-    for i in range(len(pozicije_sedista)):
-        for konkretna_pozicija in pozicija:
-            if konkretna_pozicija == zauzetost[red][i]:
-                if zauzetost[red][i] != 'X':
-                    zauzetost[red][i] = 'X'
-                else:
-                    raise izuzeci.ZauzetoMesto("Greška - mesto je zauzeto!")
+    if konkretni_let['zauzetost'][red-1][ord(pozicija) - ord('A')]:
+        raise izuzeci.ZauzetoMesto("Greška - Mesto je zauzeto")    
+        
+    karta.update({'sediste': f"{pozicija}{red}"})
+    konkretni_let['zauzetost'][red-1][ord(pozicija) - ord('A')] = True        
+        
+    return (konkretni_let, karta)
+"""
+Funkcija koja vraća listu konkretni letova koji zadovoljavaju sledeće uslove:
+1. Polazište im je jednako odredištu prosleđenog konkretnog leta
+2. Vreme i mesto poletanja im je najviše 120 minuta nakon sletanja konkretnog leta
+"""
+def povezani_letovi(svi_letovi: dict, svi_konkretni_letovi: dict, konkretni_let: dict) -> list:
+    odrediste = svi_letovi[konkretni_let['broj_leta']]['sifra_odredisnog_aerodorma']
+    vreme_poletanja = konkretni_let['datum_i_vreme_dolaska'] + timedelta(minutes = 120)
+
+    letovi = list()
+    
+    for konkretan_let in svi_konkretni_letovi:
+        polaziste = svi_letovi[svi_konkretni_letovi[konkretan_let]['broj_leta']]['sifra_polazisnog_aerodroma']
+        vreme = svi_konkretni_letovi[konkretan_let]['datum_i_vreme_polaska']
+        if vreme_poletanja >= vreme and polaziste == odrediste:
+            letovi.append(svi_konkretni_letovi[konkretan_let])
+    
+    return letovi
+
+"""
+Funkcija koja vraća sve konkretne letove čije je vreme polaska u zadatom opsegu, +/- zadati broj fleksibilnih dana
+"""
+def fleksibilni_polasci(svi_letovi: dict, konkretni_letovi: dict, polaziste: str, odrediste: str,
+                        datum_polaska: date, broj_fleksibilnih_dana: int, datum_dolaska: date) -> list:
+
+    pocetni = (datum_polaska - timedelta(days=broj_fleksibilnih_dana)).date()
+    krajnji = (datum_polaska + timedelta(days=broj_fleksibilnih_dana)).date()
+
+    filtriranik_letovi = list()
+    for konkretan_let in konkretni_letovi:
+        try:
+            konkretan_datum = konkretni_letovi[konkretan_let]['datum_i_vreme_polaska'].date()
+            sifra_polazista = svi_letovi[konkretni_letovi[konkretan_let]['broj_leta']]['sifra_polazisnog_aerodroma']
+            sifra_odredista = svi_letovi[konkretni_letovi[konkretan_let]['broj_leta']]['sifra_odredisnog_aerodorma']
+        except:
+            return filtriranik_letovi
+        if polaziste == sifra_polazista and odrediste == sifra_odredista and konkretan_datum <= krajnji and konkretan_datum >= pocetni:
+            filtriranik_letovi.append(konkretni_letovi[konkretan_let])
+    return filtriranik_letovi
+
 
 
 """
@@ -150,11 +190,17 @@ Ova funkcija sluzi samo za prikaz
 """
 
 
-def pregled_nerealizovanih_letova(svi_letovi: dict):
-    trenutni_dan = datetime.now().weekday()
+def pregled_nerealizovanih_letova(svi_letovi: dict) -> list:
+    trenutno_vreme = datetime.now()
+    nerealizovani_letovi = list()
+    
     for let in svi_letovi:
-            ispis_leta(svi_letovi[let])
-
+        if type(svi_letovi[let]['datum_pocetka_operativnosti']) == str:
+            svi_letovi[let]['datum_pocetka_operativnosti'] = datetime.strptime(svi_letovi[let]['datum_pocetka_operativnosti'], "%Y-%m-%d %H:%M:%S")
+        if svi_letovi[let]['datum_pocetka_operativnosti'] >= trenutno_vreme:
+            nerealizovani_letovi.append(svi_letovi[let])
+    
+    return nerealizovani_letovi
 
 """
 Funkcija koja omogucava pretragu leta po zadatim kriterijumima. Korisnik moze da zada jedan ili vise kriterijuma.
@@ -186,14 +232,7 @@ def trazenje_10_najjeftinijih_letova(svi_letovi: dict, polaziste: str = "", odre
             if odrediste == svi_letovi[let]['sifra_odredisnog_aerodorma'] or odrediste == "":
                 filtrirano.append(svi_letovi[let])
     sortirano = sorted(filtrirano, key=lambda l: l['cena'])
-    if len(sortirano) <= 10:
-        for let in sortirano:
-            ispis_leta(let)
-    else:
-        i = 0
-        while i < 10:
-            ispis_leta(let[i])
-            i += 1
+    return sortirano[:10]
 
 
 """

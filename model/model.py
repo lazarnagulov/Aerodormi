@@ -14,7 +14,7 @@ if __name__ == "__main__":
         "model": dict,
         "cena": float,
         "datum_pocetka_operativnosti": datetime,
-        "datum_kraja_operativnosti": datetime
+        "datum_zavrsetka_operativnosti": datetime
     }
     konkretan_let ={
         "sifra": int,

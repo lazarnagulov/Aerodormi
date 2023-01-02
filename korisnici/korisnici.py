@@ -116,7 +116,6 @@ Funkcija koja vrsi log out
 *
 """
 
-# Pre logouta sačuvati ažurirati korisnika!!!
 def logout(korisnicko_ime: str):
     korisnicko_ime = {}
 

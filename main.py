@@ -1,7 +1,7 @@
-from komande import komande
+from meni import meni
 
 def main():
-   komande.inicializacija()
+   meni.inicializacija()
 
 if __name__ == '__main__':
    main()

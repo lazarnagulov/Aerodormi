@@ -8,6 +8,8 @@ from interfejsi import interfejsi
 from datetime import datetime, timedelta
 from korisnici import korisnici
 from letovi import letovi
+from aerodromi import aerodromi
+from model_aviona import model_aviona
 from konkretni_letovi import konkretni_letovi
 from karte import karte
 from izvestaji import izvestaji
@@ -16,6 +18,8 @@ svi_korisnici = dict()
 sve_karte = dict()
 svi_letovi = dict()
 svi_konkretni_letovi = dict()
+svi_aerodromi = dict()
+svi_modeli_aviona = dict()
 
 korisnik = dict()
 
@@ -60,7 +64,7 @@ def prijava_na_let():
                 
         red = input("Unesite red sedišta: ")
         pozicija = input("Unesite poziciju sedišta: ")
-        letovi.checkin(svi_letovi, konkretan_let, red, pozicija)
+        letovi.checkin(sve_karte[sifra_karte], svi_letovi, konkretni_let, red, pozicija)
         
     while True:
         unos = input(">> ")
@@ -259,7 +263,6 @@ def prijavljeni_korisnik():
                 if kraj == "":
                     break
         elif unos == "6":
-            print(polasci())
             while True:
                 kraj = input("Pritisnite enter.")
                 if kraj == "":
@@ -311,24 +314,6 @@ def prijavljeni_prodavac():
             sleep(0.5)
         interfejsi.prodavacki(korisnik)
 
-
-# def prijavljeni_prodavac():
-#     global korisnik
-
-#     while True:
-#         unos = input(">> ")
-#         if unos == "P":
-#             interfejsi.prodavacki(korisnik)
-#             prijavljeni_prodavac_glavni()
-#         elif unos == "K":
-#             interfejsi.korisnicki(korisnik)
-#             prijavljeni_korisnik()
-#         elif unos == "X":
-#             korisnici.logout(korisnik)
-#             return
-#         interfejsi.prodavacki_pocetni(korisnik)
-
-
 # -------------------- ADMIN -------------------- #
 
 def registracija_novog_prodavca():
@@ -345,7 +330,7 @@ def izvestaji():
 
 def prijavljeni_admin_glavni():
     global korisnik
-
+    
     while True:
         unos = input(">> ")
         if unos == "1":
@@ -378,38 +363,14 @@ def prijavljeni_admin():
         elif unos == "X":
             korisnici.logout(korisnik)
             return
+        
         interfejsi.adminski_pocetni(korisnik)
 
 
 # -------------------- OSTALO -------------------- #
-def polasci():
-    global svi_konkretni_letovi, svi_letovi
-
-    polaziste = input("Unesite polazište: ")
-    odrediste = input("Unesite odredište: ")
-    datum = input("Unesite datum: ")
-
-    fleksibilni_dani = int(input("Unesite broj fleksibilnih dana: "))
-
-    pocetni = (datetime.strptime(datum, "%Y-%m-%d") -
-               timedelta(days=fleksibilni_dani)).date()
-    krajnji = (datetime.strptime(datum, "%Y-%m-%d") +
-               timedelta(days=fleksibilni_dani)).date()
-
-    filtriranik_letovi = list()
-    for konkretan_let in svi_konkretni_letovi:
-        if polaziste == svi_letovi[svi_konkretni_letovi[konkretan_let]['broj_leta']] or polaziste == "":
-            if odrediste == svi_letovi[svi_konkretni_letovi[konkretan_let]['broj_leta']] or odrediste == "":
-                konkretan_datum = svi_konkretni_letovi[konkretan_let]['datum_i_vreme_polaska'].date(
-                )
-                if konkretan_datum <= krajnji and konkretan_datum >= pocetni:
-                    filtriranik_letovi.append(
-                        svi_konkretni_letovi[konkretan_let])
-    return filtriranik_letovi
-
 
 def pocetna_strana():
-    global svi_korisnici, korisnik, svi_konkretni_letovi, svi_letovi
+    global svi_korisnici, korisnik, svi_konkretni_letovi, svi_letovi, svi_aerodromi, svi_modeli_aviona
 
     while True:
         unos = input(">> ")
@@ -431,7 +392,7 @@ def pocetna_strana():
                 else:
                     izuzeci.NepostojecaUloga()
         elif unos == "3":
-            letovi.pregled_nerealizovanih_letova(svi_letovi)
+            print(letovi.pregled_nerealizovanih_letova(svi_letovi))
             while True:
                 kraj = input("Pritisnite enter.")
                 if kraj == "":
@@ -442,24 +403,30 @@ def pocetna_strana():
         elif unos == "5":
             polaziste = input("Unesite polazište: ")
             odrediste = input("Unesite odredište: ")
-            letovi.trazenje_10_najjeftinijih_letova(
-                svi_letovi, polaziste, odrediste)
+            print(letovi.trazenje_10_najjeftinijih_letova(svi_letovi, polaziste, odrediste))
             while True:
                 kraj = input("Pritisnite enter.")
                 if kraj == "":
                     break
         elif unos == "6":
-            print(polasci())
+            polaziste = input("Unesite polazište: ")
+            odrediste = input("Unesite odredište: ")
+            datum = input("Unesite datum: ")
+            broj_fleksibilnih_dana = int(input("Unesite broj fleksibilnih dana: "))
+                        
+            letovi.fleksibilni_polasci(svi_letovi, svi_konkretni_letovi, polaziste, odrediste, datum, broj_fleksibilnih_dana, None)
             while True:
                 kraj = input("Pritisnite enter.")
                 if kraj == "":
                     break
         elif unos == "X":
             print("Izlazak iz aplikacije...")
-            korisnici.sacuvaj_korisnike(
-                konstante.PUTANJA_KORSINICI, ",", svi_korisnici)
+            korisnici.sacuvaj_korisnike(konstante.PUTANJA_KORSINICI, ",", svi_korisnici)
             karte.sacuvaj_karte(sve_karte, konstante.PUTANJA_KARTE, ",")
             letovi.sacuvaj_letove(konstante.PUTANJA_LETOVI, ",", svi_letovi)
+            konkretni_letovi.sacuvaj_kokretan_let(konstante.PUTANJA_KONKRETNI_LETOVI, ",", svi_konkretni_letovi)
+            aerodromi.sacuvaj_aerodrome(konstante.PUTANJA_AERODROMI, ",", svi_aerodromi)
+            model_aviona.sacuvaj_modele_aviona(konstante.PUTANJA_MODELI_AVIONA, ",", svi_modeli_aviona)
             return
         else:
             print("Nepostojeća komanda")
@@ -467,30 +434,15 @@ def pocetna_strana():
 
         interfejsi.pocetna_strana()
 
-# def kreiranje_konkretnih_letova():
-#     global svi_konkretni_letovi, svi_letovi, sifra_konkretnog_leta
-
-#     danas = datetime.now()
-
-#     trenutan_dan = datetime.now()
-#     poslednji_dan = trenutan_dan + timedelta(days = 7)
-
-#     while poslednji_dan >= trenutan_dan:
-#         for let in svi_letovi:
-#             if trenutan_dan.weekday() in svi_letovi[let]['dani']:
-#                 svi_konkretni_letovi.update(letovi.kreiranje_konkretnih_letova(svi_letovi, let, trenutan_dan , trenutan_dan + timedelta(days=30)))
-#         trenutan_dan += timedelta(days = 1)
-
-
 def inicializacija():
     global svi_konkretni_letovi, svi_korisnici, sve_karte, svi_letovi
 
-    svi_korisnici = korisnici.ucitaj_korisnike_iz_fajla(
-        konstante.PUTANJA_KORSINICI, ",")
+    svi_korisnici = korisnici.ucitaj_korisnike_iz_fajla(konstante.PUTANJA_KORSINICI, ",")
     sve_karte = karte.ucitaj_karte_iz_fajla(konstante.PUTANJA_KARTE, ",")
     svi_letovi = letovi.ucitaj_letove_iz_fajla(konstante.PUTANJA_LETOVI, ",")
-    for let in svi_letovi:
-        svi_konkretni_letovi.update(konkretni_letovi.kreiranje_konkretnog_leta(svi_konkretni_letovi, svi_letovi[let]))
+    svi_konkretni_letovi = konkretni_letovi.ucitaj_konkretan_let(konstante.PUTANJA_KONKRETNI_LETOVI, ",")
+    svi_aerodromi = aerodromi.ucitaj_aerodrom(konstante.PUTANJA_AERODROMI, ",")
+    svi_modeli_aviona = model_aviona.ucitaj_modele_aviona(konstante.PUTANJA_MODELI_AVIONA, ",")
 
     interfejsi.pocetna_strana()
     pocetna_strana()

@@ -1,6 +1,6 @@
 from common import konstante
 from functools import reduce
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from izuzeci import izuzeci
 from csv import DictReader, DictWriter
 
@@ -21,7 +21,7 @@ def validacija_karte(svi_konkretni_letovi: dict, sifra_konkretnog_leta: int, slo
                 raise izuzeci.NedostatakDozvole("Greška - Samo podavac može da proda kartu.")
     for mesta in slobodna_mesta:
         for sediste in mesta:
-            if sediste.isalpha():
+            if not sediste:
                 return
     raise izuzeci.ZauzetoMesto("Greška - Sva mesta su zauzeta!")
 
@@ -53,10 +53,11 @@ def kupovina_sledece_karte(svi_letovi: dict, svi_konkretni_letovi: dict, konkret
 Kupovina karte proverava da li prosleđeni konkretni let postoji i da li ima slobodnih mesta. U tom slučaju se karta 
 dodaje  u kolekciju svih karata. Slobodna mesta se prosleđuju posebno iako su deo konkretnog leta, zbog lakšeg 
 testiranja. Baca grešku ako podaci nisu validni.
+kwargs moze da prihvati prodavca kao recnik, i datum_prodaje kao datetime
+recnik prodavac moze imati id i ulogu
 CHECKPOINT 2: kupuje se samo za ulogovanog korisnika i bez povezanih letova.
 ODBRANA: moguće je dodati saputnike i odabrati povezane letove. 
 """
-
 
 def kupovina_karte(
     sve_karte: dict,
@@ -65,14 +66,14 @@ def kupovina_karte(
     putnici: list,
     slobodna_mesta: list,
     kupac: dict,
-    **kwargs  # prodavac, datum prodaje
-) -> dict:
+    **kwargs
+) -> (dict, dict):
     global sledeci_broj_karte
     
     karta = dict()
     validacija_karte(svi_konkretni_letovi, sifra_konkretnog_leta, slobodna_mesta, kupac, **kwargs)
     karta.update(
-             {
+            {
                 'broj_karte': sledeci_broj_karte,
                 'sifra_konkretnog_leta': sifra_konkretnog_leta,
                 'putnici': putnici,
@@ -87,7 +88,7 @@ def kupovina_karte(
     sve_karte[sledeci_broj_karte] = karta
     sledeci_broj_karte += 1
     
-    return karta
+    return (karta, sve_karte)
 
 
 def pretraga_karata(sve_karte: dict, svi_konkretni_letovi: dict, svi_letovi: dict, polaziste: str = "", odrediste: str = "", datum_polaska: datetime = None, 
@@ -101,25 +102,31 @@ def pretraga_karata(sve_karte: dict, svi_konkretni_letovi: dict, svi_letovi: dic
             if odrediste == let['sifra_odredisnog_aerodorma'] or odrediste == "":
                 if datum_polaska == None or datum_polaska == konkretan_let['datum_i_vreme_polaska'].date():
                     if datum_dolaska == None or datum_dolaska == konkretan_let['datum_i_vreme_dolaska'].date():
-                        print(f"{putnik} -> {sve_karte[karta]['putnici']}")
                         if putnik in sve_karte[karta]['putnici'] or putnik == None:
                             filtrirano.append(sve_karte[karta])
     return filtrirano
+
+
+"""
+Funkcija menja sve vrednosti karte novim vrednostima. Kao rezultat vraća rečnik sa svim kartama, 
+koji sada sadrži izmenu.
+"""
+def izmena_karte(
+    sve_karte: iter,
+    svi_konkretni_letovi: iter,
+    broj_karte: int,
+    nova_sifra_konkretnog_leta: int=None,
+    nov_datum_polaska: datetime=None,
+    sediste=None
+) -> dict:
+    return {broj_karte: 'nesto'}
+
+
 
 """
 Vraća sve nerealizovane karte za korisnika u listi.
 """
 
-# PRAVA FUNKCIJA
-# def pregled_nerealizovanaih_karata(korisnik: dict, sve_karte: dict) -> list:
-#     nerealizovane_karte = list()
-#     for karta in sve_karte:
-#         putnici = sve_karte[karta]['putnici']
-#         if korisnik in putnici and sve_karte[karta]['status'] == konstante.STATUS_NEREALIZOVANA_KARTA:
-#             nerealizovane_karte.append(sve_karte[karta])            
-#     return nerealizovane_karte
-
-# # funckija koja prolazi testove
 def pregled_nerealizovanaih_karata(korisnik: dict, sve_karte: dict) -> list:
     nerealizovane_karte = list()
     for karta in sve_karte:
@@ -137,6 +144,8 @@ Kao rezultat se vraća nova kolekcija svih karata. Baca grešku ako podaci nisu 
 
 
 def brisanje_karte(korisnik: dict, sve_karte: dict, broj_karte: int) -> dict:
+    if broj_karte not in sve_karte:
+        raise izuzeci.NeispravnoUnetiPodaci("Greška - Karta ne postoji!")
     if korisnik['uloga'] == konstante.ULOGA_KORISNIK:
         raise izuzeci.NedostatakDozvole(
             "Greška - Korisnik ne može da briše karte!")
@@ -153,10 +162,9 @@ def brisanje_karte(korisnik: dict, sve_karte: dict, broj_karte: int) -> dict:
 Funkcija koja čuva sve karte u fajl na zadatoj putanji.
 """
 
-# Funkcija koja prolazi testove 
 def sacuvaj_karte(sve_karte: dict, putanja: str, separator: str):
     with open(putanja, 'w', newline="") as f:
-        csv_pisac = DictWriter(f, ['broj_karte', 'sifra_konkretnog_leta',
+        csv_pisac = DictWriter(f, ['broj_karte', 'sifra_konkretnog_leta', 'sediste', 'putnici', 'status',
                                    'kupac', 'prodavac', 'sifra_sedista', 'datum_prodaje', 'obrisana'], delimiter=separator)
         for karta in sve_karte:
             csv_pisac.writerow(sve_karte[karta])
@@ -169,7 +177,7 @@ Funkcija koja učitava sve karte iz fajla i vraća ih u rečniku.
 def ucitaj_karte_iz_fajla(putanja: str, separator: str) -> dict:
     with open(putanja) as f:
         karte = dict()
-        csv_citac = DictReader(f, ['broj_karte', 'sifra_konkretnog_leta',
+        csv_citac = DictReader(f, ['broj_karte', 'sifra_konkretnog_leta', 'sediste', 'putnici', 'status',
                                    'kupac', 'prodavac', 'sifra_sedista', 'datum_prodaje', 'obrisana'], delimiter = separator)
         for karta in csv_citac:
             karte.update({
@@ -179,8 +187,10 @@ def ucitaj_karte_iz_fajla(putanja: str, separator: str) -> dict:
                         'sifra_konkretnog_leta': int(karta['sifra_konkretnog_leta']),
                         'kupac': karta['kupac'],
                         'prodavac': karta['prodavac'],
-                        'sifra_sedista': karta['sifra_sedista'],
-                        'datum_prodaje': karta['datum_prodaje'],
+                        'sediste': karta['sediste'],
+                        'status': karta['status'],
+                        'putnici': [], # popraviti putnike
+                        'datum_prodaje': datetime.strptime(karta['datum_prodaje'], '%Y-%m-%d %H:%M:%S'),
                         'obrisana': karta['obrisana'] == 'True'
                     }
             })

@@ -82,7 +82,7 @@ def izvestaj_ubc_prodatih_karata_30_dana_po_prodavcima(sve_karte: dict, svi_konk
     for karta in sve_karte:
         prodavac = sve_karte[karta]['prodavac']
         if prodavac in broj_prodatih_karata:
-            broj_prodatih_karata.update += 1
+            broj_prodatih_karata[prodavac] += 1
         else:
             broj_prodatih_karata[prodavac] = 1
     return broj_prodatih_karata

@@ -9,6 +9,9 @@ PUTANJA_KONKRETNI_LETOVI = "./podaci/konkretni_letovi.csv"
 PUTANJA_MODELI_AVIONA = "./podaci/modeli_aviona.csv"
 PUTANJA_AERODROMI = "./podaci/aerodromi.csv"
 
+FORMAT_DATETIME = "%Y-%m-%d %H:%M:%SS"
+FORMAT_DATE = "%Y-%m-%d"
+
 STATUS_NEREALIZOVANA_KARTA = "nerealizovana"
 STATUS_REALIZOVANA_KARTA = "realizovana"
 

@@ -130,7 +130,6 @@ def checkin(karta: dict, svi_letovi: dict, konkretni_let: dict, red: int, pozici
         raise izuzeci.NeispravnoUnetiPodaci("Greška - Red ne postoji!")
 
     pozicije_sedista: list = svi_letovi[konkretni_let['broj_leta']]['model']['pozicije_sedista']
-    
         
     if pozicija not in pozicije_sedista:
         raise izuzeci.NeispravnoUnetiPodaci("Greška - Pozicija nije pravilno uneta!")

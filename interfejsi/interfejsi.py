@@ -42,12 +42,20 @@ def nastavak_kupovine_sledece_karte():
     print("X: Nazad")
     
 
-def potrvda_kupovine():
+def potvrda_kupovine():
     system('cls')
     print("-------------------------------" )
     print("Potvrda kupovine:")
     print("-------------------------------" )
     print("1: Kupi kartu")
+    print("X: Nazad")
+
+def potvrda_prodaje():
+    system('cls')
+    print("-------------------------------" )
+    print("Potvrda prodaje:")
+    print("-------------------------------" )
+    print("1: Prodaj kartu")
     print("X: Nazad")
     
 def prijava_na_let():
@@ -65,7 +73,15 @@ def prijava():
     print("-------------------------------")
     print("Unesite korisničko ime i lozinku.")
     print("Pritisnite enter za povratak na početnu stranu.")
+    print("-------------------------------")           
+
+def kupovina_sledece():
+    system('cls')
     print("-------------------------------")            
+    print("Da li želite da kupite sledeću kartu?")
+    print("-------------------------------")            
+    print("1: Da")
+    print("2: Ne")
 
 def kupovina_karata():
     system("cls")
@@ -100,6 +116,15 @@ def adminski_pocetni(korisnik: dict):
     print("K: Korisničke komande")
     print("X: Odjava")
 
+def brisanje_karte():
+    system('cls')
+    print("-------------------------------")
+    print("Brisanje karte")
+    print("-------------------------------")
+    print("1: Unesite broj karte")
+    print("2: Pretraži karte")
+    print("X: Nazad")
+
 def pretraga_karata():
     pass
 
@@ -111,6 +136,15 @@ def kreiranje_letova():
 
 def izvestaji():
     pass
+
+def prodaja_karte():
+    system("cls")
+    print("-------------------------------")
+    print("PRODAJA KARATA")
+    print("-------------------------------")
+    print("1: Unesite šifru leta")
+    print("2: Pretraga konkretnih letova")    
+    print("X: Nazad")
 
 
 def adminski(korisnik: dict):

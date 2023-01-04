@@ -180,6 +180,10 @@ def ucitaj_karte_iz_fajla(putanja: str, separator: str) -> dict:
         csv_citac = DictReader(f, ['broj_karte', 'sifra_konkretnog_leta', 'sediste', 'putnici', 'status',
                                    'kupac', 'prodavac', 'sifra_sedista', 'datum_prodaje', 'obrisana'], delimiter = separator)
         for karta in csv_citac:
+            try:
+                datum_prodaje = datetime.strptime(karta['datum_prodaje'], '%Y-%m-%d %H:%M:%S')
+            except:
+                datum_prodaje = ''
             karte.update({
                 int(karta['broj_karte']):
                     {
@@ -189,8 +193,8 @@ def ucitaj_karte_iz_fajla(putanja: str, separator: str) -> dict:
                         'prodavac': karta['prodavac'],
                         'sediste': karta['sediste'],
                         'status': karta['status'],
-                        'putnici': [], # popraviti putnike
-                        'datum_prodaje': datetime.strptime(karta['datum_prodaje'], '%Y-%m-%d %H:%M:%S'),
+                        'putnici': eval(karta['putnici']),
+                        'datum_prodaje': datum_prodaje,
                         'obrisana': karta['obrisana'] == 'True'
                     }
             })

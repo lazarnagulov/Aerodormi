@@ -16,6 +16,7 @@ def kreiranje_konkretnog_leta(svi_konkretni_letovi: dict, let: dict):
     sat_sletanja, minut_sletanja = let['vreme_sletanja'].split(":")    
     
     # datum_pocetka = datetime.strptime(datum_pocetka, "%Y-%m-%d %H:%M:%S")
+    # datum_kraja = datetime.strptime(datum_kraja, "%Y-%m-%d %H:%M:%S")
         
     datum_i_vreme_poletanja = datum_pocetka.replace(hour = int(sat_poletanja), minute = int(minut_poletanja))
     datum_i_vreme_sletanja = datum_pocetka.replace(hour = int(sat_sletanja), minute = int(minut_sletanja))
@@ -24,14 +25,14 @@ def kreiranje_konkretnog_leta(svi_konkretni_letovi: dict, let: dict):
     for _ in range(7):
         if datum_i_vreme_poletanja.weekday() in let['dani']:
             konkretni_letovi.update({
-                            sifra_konkretnog_leta:
-                            {
-                                'sifra': sifra_konkretnog_leta,
-                                'broj_leta': let['broj_leta'],
-                                'datum_i_vreme_polaska': datum_i_vreme_poletanja,
-                                'datum_i_vreme_dolaska': datum_i_vreme_sletanja,
-                            }
-                        })
+                        sifra_konkretnog_leta:
+                        {
+                            'sifra': sifra_konkretnog_leta,
+                            'broj_leta': let['broj_leta'],
+                            'datum_i_vreme_polaska': datum_i_vreme_poletanja,
+                            'datum_i_vreme_dolaska': datum_i_vreme_poletanja,
+                        }
+                    })
             sifra_konkretnog_leta += 1
         datum_i_vreme_poletanja += timedelta(days = 1)
         datum_i_vreme_sletanja += timedelta(days = 1)

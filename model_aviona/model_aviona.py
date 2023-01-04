@@ -10,7 +10,7 @@ Kao rezultat vraća rečnik svih modela aviona sa novim modelom.
 def kreiranje_modela_aviona(
     svi_modeli_aviona: dict,
     naziv: str ="",
-    broj_redova: str = "",
+    broj_redova: int = 0,
     pozicija_sedista: list = []
 ) -> dict:
     global sifra_modela

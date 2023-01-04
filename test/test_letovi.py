@@ -17,6 +17,7 @@ from datetime import datetime, timedelta
 # 3. Konvencija imenovanja (test_kreiraj_* za kreiranje) ali su scenariji razdvojeni. Npr. prazno ime i prazan email posebni testovi
 class LetoviTest(unittest.TestCase):
     def setUp(self):
+        self.maxDiff = None
         self.modeli_aviona = {
             123: {
                 "id": 123,
@@ -1020,14 +1021,16 @@ class LetoviTest(unittest.TestCase):
             "broj_leta": rand_str(2) + str(randint(10, 99)),
             "datum_pocetka_operativnosti": datetime.now() + timedelta(hours=random.randint(1, 100)),
             "sifra_polazisnog_aerodroma": rand_str(3),
-            "sifra_odredisnog_aerodorma": rand_str(3)
+            "sifra_odredisnog_aerodorma": rand_str(3),
+            "cena": random.randint(0,100)
 
         }
         neocekivani_let_1 = {
             "broj_leta": rand_str(2) + str(randint(10, 99)),
             "datum_pocetka_operativnosti": datetime.now() - timedelta(hours=random.randint(1, 100)),
             "sifra_polazisnog_aerodroma": rand_str(3),
-            "sifra_odredisnog_aerodorma": rand_str(3)
+            "sifra_odredisnog_aerodorma": rand_str(3),
+            "cena": random.randint(0, 100)
         }
         svi_letovi = {
             neocekivani_let_1["broj_leta"]: neocekivani_let_1,
@@ -1052,14 +1055,16 @@ class LetoviTest(unittest.TestCase):
             "broj_leta": rand_str(2) + str(randint(10, 99)),
             "datum_pocetka_operativnosti": datetime.now() + timedelta(hours=random.randint(1, 100)),
             "sifra_polazisnog_aerodroma": rand_str(3),
-            "sifra_odredisnog_aerodorma": rand_str(3)
+            "sifra_odredisnog_aerodorma": rand_str(3),
+            "cena": random.randint(0, 100)
 
         }
         neocekivani_let_1 = {
             "broj_leta": rand_str(2) + str(randint(10, 99)),
             "datum_pocetka_operativnosti": datetime.now() - timedelta(hours=random.randint(1, 100)),
             "sifra_polazisnog_aerodroma": rand_str(3),
-            "sifra_odredisnog_aerodorma": rand_str(3)
+            "sifra_odredisnog_aerodorma": rand_str(3),
+            "cena": random.randint(0, 100)
         }
         svi_letovi = {
             neocekivani_let_1["broj_leta"]: neocekivani_let_1,

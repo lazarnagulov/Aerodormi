@@ -23,8 +23,6 @@ svi_modeli_aviona = dict()
 
 korisnik = dict()
 
-# TODO: Svi printovi u ispisi_let()
-#       Izmena letova
 
 # -------------------- LETOVI -------------------- #
 
@@ -64,33 +62,30 @@ def pretraga_letova():
         unos = input("Pritisnite enter da biste nastavili. ")
         if unos == "":
             return
-# TODO: Checkin za prodavca
-#       Povezani letovi
-#       Saputnici 
+# TODO: Prodaja sledeće karte
+#       Checkin za sledeći let
 # -------------------- CHECKIN -------------------- #
-def odabir_sedista(putnici: list, sifra_karte: int):
+def odabir_sedista(sifra_karte: int):
+    global sve_karte, svi_konkretni_letovi
     konkretan_let = svi_konkretni_letovi[sve_karte[sifra_karte]['sifra_konkretnog_leta']]
     zauzetost = konkretan_let['zauzetost']
-    
     letovi.ispis_matrice(zauzetost)
             
-    red = int(input("Unesite red sedišta: "))
+    red = input("Unesite red sedišta: ")
     pozicija = input("Unesite poziciju sedišta: ")
     try:
-        letovi.checkin(sve_karte[sifra_karte], svi_letovi, konkretan_let, red, pozicija)
+        letovi.checkin(sve_karte[sifra_karte], svi_letovi, konkretan_let, int(red), pozicija)
+        sve_karte[sifra_karte]['status'] = konstante.STATUS_REALIZOVANA_KARTA
     except Exception as ex:
         print(ex)
 
-    while True:
-        unos = input("Pritisnite enter da biste nastavili. ")
-        if unos == "":
-            return
+    zaustavi()
 
 def prijava_na_let():
     global korisnik, svi_konkretni_letovi, sve_karte, svi_korisnici, svi_letovi, svi_aerodromi
     
     putnici = list()
-            
+    
     while True:
         unos = input(">> ")
         if unos == "1":
@@ -98,31 +93,37 @@ def prijava_na_let():
             
             if broj_karte not in sve_karte:
                 print("Karta ne postoji")
-                sleep(1)
+                zaustavi()
                 continue
             
-            if korisnik not in sve_karte[broj_karte]['putnici']:
+            if korisnik['uloga'] == konstante.ULOGA_KORISNIK and korisnik not in sve_karte[broj_karte]['putnici']:
                 print("Korisnik nema kartu")
             else:      
-                if not korisnik.get('pasos'):
-                    pasos = input("Unesite broj pasoša: ")
-                    korisnik['pasos'] = pasos
-                if not korisnik.get('drzavljanstvo'):
-                    drzavljanstvo = input("Unesite državljanstvo: ")
-                    korisnik['drzavljanstvo'] = drzavljanstvo
-                if not korisnik.get('pol'):
-                    pol = input("Unesite pol: ")
-                    korisnik['pol'] = pol 
+                putnici = sve_karte[broj_karte]['putnici']
+                for putnik in putnici:
+                    if not putnik.get('pasos'):
+                        print(f"Putnik {putnik['ime']} {putnik['prezime']} nema unet broj pasoša!")
+                        pasos = input("Unesite broj pasoša za: ")
+                        putnik['pasos'] = pasos
+                    if not putnik.get('drzavljanstvo'):
+                        print(f"Putnik {putnik['ime']} {putnik['prezime']} nema uneto državljanstvo!")
+                        drzavljanstvo = input("Unesite državljanstvo: ")
+                        putnik['drzavljanstvo'] = drzavljanstvo
+                    if not korisnik.get('pol'):
+                        print(f"Putnik {putnik['ime']} {putnik['prezime']} nema unet pol!")
+                        pol = input("Unesite pol: ")
+                        putnik['pol'] = pol                     
                 
-                if korisnik not in putnici:
-                    putnici.append(korisnik)
-                
-                odabir_sedista(putnici, broj_karte)
+                odabir_sedista(broj_karte)
         elif unos == "2":
-            nerealizovane = karte.pregled_nerealizovanaih_karata(korisnik, [sve_karte[karta] for karta in sve_karte])
-            for karta in nerealizovane:
-                karte.ispis_karte(karta, svi_konkretni_letovi, svi_letovi, svi_aerodromi)
-            zaustavi()
+            if korisnik['uloga'] == konstante.ULOGA_KORISNIK:
+                nerealizovane = karte.pregled_nerealizovanaih_karata(korisnik, [sve_karte[karta] for karta in sve_karte])
+                konstante.ZAGLAVLJE_KARTE()
+                for karta in nerealizovane:
+                    karte.ispis_karte(karta, svi_konkretni_letovi, svi_letovi, svi_aerodromi)
+                zaustavi()
+            else:
+                print("Pretraga karata za prodavca/ admina nije implementirana")
         elif unos == "X":
             return
         else:
@@ -176,30 +177,42 @@ def brisanje_karata():
         interfejsi.brisanje_karte()
 
 def pretraga_karata():
-    global svi_letovi, svi_konkretni_letovi, karte, svi_aerodromi
+    global svi_letovi, svi_konkretni_letovi, karte, svi_aerodromi, svi_korisnici
 
     try:
         polaziste = input("Unesite polazište: ")
         odrediste = input("Unesite odredište: ")
         datum_polaska = input("Unesite datum polaska: ")
         datum_dolaska = input("Unesite datum dolaska: ")
-        datum_polaska = datetime.strptime(datum_polaska, konstante.FORMAT_DATETIME)
-        datum_dolaska = datetime.strptime(datum_dolaska, konstante.FORMAT_DATETIME)
+        if datum_polaska != "":
+            datum_polaska = datetime.strptime(datum_polaska, konstante.FORMAT_DATETIME)
+        if datum_dolaska != "":
+            datum_dolaska = datetime.strptime(datum_dolaska, konstante.FORMAT_DATETIME)
         putnici = list()
         while True:
             ime = input("Unesite ime putnika: ")
             prezime = input("Unesite prezime putnika: ")
-            putnici.append({'ime': ime, 'prezime': prezime})
-            unos = input("Pritisnite enter ukoliko želite da nastavite dalje.")
-            if unos == "":
+            if ime != "" and prezime != "": 
+                putnik = {'ime': ime, 'prezime': prezime}
+                for korisnik in svi_korisnici:
+                    if korisnik['ime'] == putnik['ime'] and korisnik['prezime'] == putnik['prezime']:
+                        putnik = korisnik
+                        break
+                putnici.append(putnik)
+            else:
+                break
+            unos = input("Uneti još putnika? (Da/Ne): ")
+            if unos != "Da":
                 break
 
         filtrirane = karte.pretraga_karata(sve_karte, svi_konkretni_letovi, svi_letovi, polaziste, odrediste, datum_polaska, datum_dolaska, putnici)
+        konstante.ZAGLAVLJE_KARTE()
         for karta in filtrirane:
             karte.ispis_karte(karta, svi_konkretni_letovi, svi_letovi, svi_aerodromi)
     except Exception as ex:
         print(ex)
-        sleep(1)
+        zaustavi()
+        
 def prodaja_karte():
        
     while True:
@@ -208,7 +221,7 @@ def prodaja_karte():
             konkretan_let = int(input("Šifra leta: "))
             if konkretan_let not in svi_konkretni_letovi:
                 print("Let ne postoji")
-                sleep(1)
+                zaustavi()
             else:
                 interfejsi.odabir_putnika()
                 odabir_putnika(konkretan_let)
@@ -219,7 +232,7 @@ def prodaja_karte():
             return
         else:
             print("Nepostojeća komanda!")
-            sleep(1)
+            zaustavi()
 
         interfejsi.prodaja_karte()
 
@@ -249,11 +262,30 @@ def odabir_putnika(sifra_konkretnog_leta: int):
                     potvrda = potvrda_prodaje(sifra_konkretnog_leta, putnici, svi_korisnici[kupac])
                 else:
                     print("Korisničko ime ne postoji!")
-                    sleep(1)
+                    zaustavi()
             if potvrda:
                 if korisnik['uloga'] == konstante.ULOGA_KORISNIK:
-                    kupovina_sledece(sifra_konkretnog_leta)
-                    return
+                    interfejsi.kupovina_sledece()
+                    unos = input(">> ")
+                    if unos == "1":
+                        moguci_letovi = karte.kupovina_sledece_karte(svi_letovi, svi_konkretni_letovi, sifra_konkretnog_leta)
+                        if moguci_letovi == []:
+                            print("Ne postoje sledeći letovi!")
+                            zaustavi()
+                            return
+                        konstante.ZAGLAVLJE_KONKRETNI_LETOVI()
+                        for let in moguci_letovi:
+                            letovi.ispis_konkretnog_leta(let)
+                        while True:
+                            sifra_narednog_leta = input("Šifra narednog leta: ")
+                            if sifra_narednog_leta == "":
+                                return
+                            if int(sifra_narednog_leta) in [let['sifra'] for let in moguci_letovi]:
+                                interfejsi.odabir_putnika()
+                                odabir_putnika(int(sifra_narednog_leta))
+                                return
+                    elif unos == "2":
+                        return
                 elif korisnik['uloga'] == konstante.ULOGA_PRODAVAC:
                     pass
                 return
@@ -270,41 +302,34 @@ def odabir_putnika(sifra_konkretnog_leta: int):
                 interfejsi.potvrda_prodaje()
                 potvrda = potvrda_prodaje(sifra_konkretnog_leta, putnici, svi_korisnici[kupac])
             if potvrda:
-                kupovina_sledece(sifra_konkretnog_leta)
-                return
+                interfejsi.kupovina_sledece()
+                unos = input(">> ")
+                if unos == "1":
+                    moguci_letovi = karte.kupovina_sledece_karte(svi_letovi, svi_konkretni_letovi, sifra_konkretnog_leta)
+
+                    if moguci_letovi == []:
+                        print("Ne postoje sledeći letovi!")
+                        zaustavi()
+                        return
+
+                    konstante.ZAGLAVLJE_KONKRETNI_LETOVI()
+                    for let in moguci_letovi:
+                        letovi.ispis_konkretnog_leta(let)
+                    while True:
+                        sifra_narednog_leta = input("Šifra narednog leta: ")
+                        if sifra_narednog_leta == "":
+                            return
+                        if int(sifra_narednog_leta) in [let['sifra'] for let in moguci_letovi]:
+                            interfejsi.odabir_putnika()
+                            odabir_putnika(int(sifra_narednog_leta))
+                            return
         elif unos == "X":
             return
         else:
             print("Nepostojeća komanda!")
-            sleep(0.5)
-        interfejsi.odabir_putnika()
-
-def kupovina_sledece(sifra_konkretnog_leta: int):
-    global svi_letovi, svi_konkretni_letovi
-    
-    interfejsi.kupovina_sledece()
-    unos = input(">> ")
-    if unos == "1":
-        moguci_letovi = karte.kupovina_sledece_karte(svi_letovi, svi_konkretni_letovi, sifra_konkretnog_leta)
-
-        if moguci_letovi == []:
-            print("Ne postoje sledeći letovi!")
             zaustavi()
-            return
 
-        konstante.ZAGLAVLJE_KONKRETNI_LETOVI()
-        for let in moguci_letovi:
-            letovi.ispis_konkretnog_leta(let)
-        while True:
-            sifra_narednog_leta = input("Šifra narednog leta: ")
-            if sifra_narednog_leta == "":
-                return
-            if int(sifra_narednog_leta) in [let['sifra'] for let in moguci_letovi]:
-                interfejsi.odabir_putnika()
-                odabir_putnika(int(sifra_narednog_leta))
-            
-    elif unos == "2":
-        return
+        interfejsi.odabir_putnika()
 
 def potvrda_kupovine(sifra_konkretnog_leta: int, putnici: list) -> bool:
         unos = input(">> ")
@@ -316,7 +341,6 @@ def potvrda_kupovine(sifra_konkretnog_leta: int, putnici: list) -> bool:
                 slobodna_mesta = letovi.podesi_matricu_zauzetosti(
                     svi_letovi, svi_konkretni_letovi[sifra_konkretnog_leta])
             karta = karte.kupovina_karte(sve_karte, svi_konkretni_letovi, sifra_konkretnog_leta, putnici, slobodna_mesta, korisnik)
-            putnici = []
             return True
         elif unos == "X":
             return False
@@ -336,13 +360,13 @@ def potvrda_prodaje(sifra_konkretnog_leta: int, putnici: list, kupac: dict) -> b
                 karta = karte.kupovina_karte(sve_karte, svi_konkretni_letovi, sifra_konkretnog_leta, putnici, slobodna_mesta, kupac, prodavac = korisnik)
             except Exception as ex:
                 print(ex)
-                sleep(1)
+                zaustavi()
             return True
         elif unos == "X":
             return False
         else:
             print("Nepostojeća komanda")
-            sleep(1)
+            zaustavi()
 
 def kupovina_karte():
     global korisnik, sve_karte, svi_konkretni_letovi, svi_letovi
@@ -363,7 +387,7 @@ def kupovina_karte():
             return
         else:
             print("Nepostojeća komanda!")
-            sleep(1)
+            zaustavi()
 
         interfejsi.kupovina_karata()
 
@@ -409,6 +433,7 @@ def prijavljeni_korisnik():
             zaustavi()
         elif unos == "7":
             nerealizovane = karte.pregled_nerealizovanaih_karata(korisnik, [sve_karte[karta] for karta in sve_karte])
+            konstante.ZAGLAVLJE_KARTE()
             for karta in nerealizovane:
                 karte.ispis_karte(karta, svi_konkretni_letovi, svi_letovi, svi_aerodromi)
             zaustavi()
@@ -423,25 +448,6 @@ def prijavljeni_korisnik():
 # -------------------- PRODAVAC -------------------- #
 def izmena_letova():
     pass
-
-def pretraga_prodatih_karata():
-    global svi_korisnici, korisnik, svi_letovi, svi_konkretni_letovi, svi_aerodromi
-    try:
-        polaziste = input("Polazište: ")
-        odrediste = input("Odredište: ")
-        ime_putnika = input("Ime putnika: ")
-        prezime_putnika = input("Prezime putnika: ")
-        datum_polaska = input(f"Datum polaska ({konstante.FORMAT_DATETIME}): ")
-        datum_polaska = datetime.strptime(datum_polaska, konstante.FORMAT_DATETIME)
-        filtrirane = karte.pretraga_prodatih_karata(korisnik, svi_letovi, svi_konkretni_letovi, sve_karte, {'ime': ime_putnika, 'prezime': prezime_putnika}, polaziste,odrediste,datum_polaska)
-        
-        konstante.ZAGLAVLJE_KARTE()
-        for karta in filtrirane:
-            karte.ispis_karte(karta, svi_konkretni_letovi, svi_letovi, svi_aerodromi)
-        
-    except Exception as ex:
-        print(ex)        
-    
 
 def prijavljeni_prodavac():
     global korisnik
@@ -462,7 +468,7 @@ def prijavljeni_prodavac():
             brisanje_karata()
         elif unos == "5":
             interfejsi.pretraga_karata()
-            pretraga_prodatih_karata()
+            pretraga_karata()
         elif unos == "X":
             return
         else:
@@ -472,9 +478,6 @@ def prijavljeni_prodavac():
 
 # -------------------- ADMIN -------------------- #
 # TODO: Pretraga letova (NE KONKRETNIH)
-#       Registracija novog prodavca koji nema nalog
-#       Izdvojiti podatke o letu
-#       Izdvojiti
 
 def registracija_novog_prodavca():
     global svi_korisnici
@@ -542,7 +545,7 @@ def izmena_letova():
                     letovi.izmena_letova(svi_letovi, broj_leta, sifra_polazisnog_aerodroma, sifra_odredisnog_aerodroma, vreme_poletanja, vreme_sletanja, sletanje_sutra, prevoznik, dani, model, cena, datum_pocetka_operativnosti, datum_kraja_operativnosti)
                 except Exception as ex:
                     print(ex)
-                    sleep(1)
+                    zaustavi()
         elif unos == "2":
             print("Pretraga letova nije implementirana")
         elif unos == "X":
@@ -718,7 +721,7 @@ def pocetna_strana():
                 korisnici.registracija(svi_korisnici)
             except Exception as ex:
                 print(ex)
-                sleep(1)
+                zaustavi()
         elif unos == "2":
             try:
                 korisnik = korisnici.prijava(svi_korisnici)
@@ -734,7 +737,7 @@ def pocetna_strana():
                         prijavljeni_prodavac()
             except Exception as ex:
                 print(ex)
-                sleep(1)
+                zaustavi()
         elif unos == "3":
             nerealizovani = letovi.pregled_nerealizovanih_letova(svi_letovi)
             konstante.ZAGLAVLJE_LETOVI()
@@ -746,7 +749,7 @@ def pocetna_strana():
                 interfejsi.filteri_za_pretragu_letova()
             except Exception as ex:
                 print(ex)
-                sleep(1)
+                zaustavi()
             pretraga_letova()
         elif unos == "5":
             pretraga_najjeftinijih_letovi()
@@ -764,12 +767,12 @@ def pocetna_strana():
             zaustavi()
         elif unos == "X":
             print("Izlazak iz aplikacije...")
-            # korisnici.sacuvaj_korisnike(konstante.PUTANJA_KORSINICI, ",", svi_korisnici)
-            # karte.sacuvaj_karte(sve_karte, konstante.PUTANJA_KARTE, ",")
-            # letovi.sacuvaj_letove(konstante.PUTANJA_LETOVI, ",", svi_letovi)
-            # konkretni_letovi.sacuvaj_kokretan_let(konstante.PUTANJA_KONKRETNI_LETOVI, ",", svi_konkretni_letovi)
-            # aerodromi.sacuvaj_aerodrome(konstante.PUTANJA_AERODROMI, ",", svi_aerodromi)
-            # model_aviona.sacuvaj_modele_aviona(konstante.PUTANJA_MODELI_AVIONA, ",", svi_modeli_aviona)
+            korisnici.sacuvaj_korisnike(konstante.PUTANJA_KORSINICI, ",", svi_korisnici)
+            karte.sacuvaj_karte(sve_karte, konstante.PUTANJA_KARTE, ",")
+            letovi.sacuvaj_letove(konstante.PUTANJA_LETOVI, ",", svi_letovi)
+            konkretni_letovi.sacuvaj_kokretan_let(konstante.PUTANJA_KONKRETNI_LETOVI, ",", svi_konkretni_letovi)
+            aerodromi.sacuvaj_aerodrome(konstante.PUTANJA_AERODROMI, ",", svi_aerodromi)
+            model_aviona.sacuvaj_modele_aviona(konstante.PUTANJA_MODELI_AVIONA, ",", svi_modeli_aviona)
             return
         else:
             print("Nepostojeća komanda")

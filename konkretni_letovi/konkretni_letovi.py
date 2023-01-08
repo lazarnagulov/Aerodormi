@@ -16,14 +16,16 @@ def kreiranje_konkretnog_leta(svi_konkretni_letovi: dict, let: dict):
     sat_poletanja, minut_poletanja = let['vreme_poletanja'].split(":")
     sat_sletanja, minut_sletanja = let['vreme_sletanja'].split(":")    
     
-    # datum_pocetka = datetime.strptime(datum_pocetka, konstante.FORMAT_DATETIME)
-    # datum_kraja = datetime.strptime(datum_kraja, konstante.FORMAT_DATETIME)
+    if type(datum_pocetka) == str:
+        datum_pocetka = datetime.strptime(datum_pocetka, konstante.FORMAT_DATETIME)
+    if type(datum_kraja) == str:
+        datum_kraja = datetime.strptime(datum_kraja, konstante.FORMAT_DATETIME)
         
     datum_i_vreme_poletanja = datum_pocetka.replace(hour = int(sat_poletanja), minute = int(minut_poletanja))
     datum_i_vreme_sletanja = datum_pocetka.replace(hour = int(sat_sletanja), minute = int(minut_sletanja))
     
-    
-    for _ in range(7):
+    period = datum_kraja - datum_pocetka
+    for _ in range(period.days):
         if datum_i_vreme_poletanja.weekday() in let['dani']:
             konkretni_letovi.update({
                         sifra_konkretnog_leta:

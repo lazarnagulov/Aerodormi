@@ -143,7 +143,8 @@ def podesi_matricu_zauzetosti(svi_letovi: dict, konkretan_let: dict) -> list:
     matrica_zauzetosti = list()
     let = svi_letovi[konkretan_let['broj_leta']]
     broj_redova = let['model']['broj_redova']
-    pozicije_sedista = [False for i in range(broj_redova)]
+    pozicije_sedista = let['model']['pozicije_sedista']
+    pozicije_sedista = [False for i in range(len(pozicije_sedista))]
     for _ in range(broj_redova):
         matrica_zauzetosti.append(pozicije_sedista)
     konkretan_let.update({'zauzetost': matrica_zauzetosti})
@@ -171,7 +172,6 @@ def checkin(karta: dict, svi_letovi: dict, konkretni_let: dict, red: int, pozici
         raise izuzeci.NeispravnoUnetiPodaci("Greška - Red ne postoji!")
 
     pozicije_sedista: list = svi_letovi[konkretni_let['broj_leta']]['model']['pozicije_sedista']
-        
     if pozicija not in pozicije_sedista:
         raise izuzeci.NeispravnoUnetiPodaci("Greška - Pozicija nije pravilno uneta!")
 

@@ -90,20 +90,6 @@ def kupovina_karte(
     
     return (karta, sve_karte)
 
-def pretraga_prodatih_karata(korisnik: dict, svi_letovi: dict, svi_konkretni_letovi:dict, sve_karte: dict, putnik: dict, polaziste: str = "", odrediste: str = "", datum_polaska: datetime = None) -> list:
-    prodate = list()
-    if korisnik['uloga'] == konstante.ULOGA_KORISNIK:
-        raise izuzeci.NedostatakDozvole("Korisnik ne može da pretražuje prodate karte!")
-    for karta in sve_karte:
-        if sve_karte[karta].get('prodavac') == korisnik:
-            if putnik in sve_karte[karta]['putnici']:
-                konkretan_let = svi_konkretni_letovi[sve_karte[karta]['sifra_konkretnog_leta']]
-                let = svi_letovi[konkretan_let['broj_leta']]
-                if not polaziste or polaziste == let['sifra_polazisnog_aerodroma']:
-                    if not odrediste or odrediste == let['sifra_odredisnog_aerodorma']:
-                        prodate.append(sve_karte[karta])
-    return prodate
-
 
 def pretraga_karata(sve_karte: dict, svi_konkretni_letovi: dict, svi_letovi: dict, polaziste: str = "", odrediste: str = "", datum_polaska: datetime = None, 
                     datum_dolaska: datetime = None, putnik: list = None) -> list:
@@ -133,7 +119,53 @@ def izmena_karte(
     nov_datum_polaska: datetime=None,
     sediste=None
 ) -> dict:
-    return {broj_karte: 'nesto'}
+    karta = sve_karte[broj_karte]
+    nova_karta = {
+        karta['broj_karte']:
+        {
+            'broj_karte': broj_karte,
+            'sifra_konkretnog_leta': nova_sifra_konkretnog_leta if nova_sifra_konkretnog_leta != None else karta['sifra_konkretnog_leta'],
+            'kupac': karta['kupac'],
+            'prodavac': karta['prodavac'],
+            'obrisana': karta['obrisana'],
+            'sediste': sediste if sediste != None else karta['sediste']
+        }
+    }
+    
+    if karta.get('prodavac') != None:
+        nova_karta['prodavac'] = karta['prodavac']
+    if karta.get('datum_prodaje') != None:
+        nova_karta['datum_prodaje'] = karta['datum_prodaje']
+    if karta.get('putnici') != None:
+        nova_karta['putnici'] = karta['putnici']
+    if karta.get('status') != None:
+        nova_karta['status'] = karta['status']
+    if sediste != None:
+        konkretan_let = svi_konkretni_letovi[nova_karta['sifra_konkretnog_leta']]
+        try:
+            pozicija = sediste[len(sediste)-1]
+            red = ""
+            for karakter in range(len(sediste) - 1):
+                red += karakter
+            red = int(red)
+
+            konkretan_let['zauzetost'][red][pozicija] = True
+
+            pozicija = karta['sediste'][len(karta['sediste'] - 1)]
+            red = ""
+            for karakter in range(len(karta['sediste']) - 1):
+                red += karakter
+            red = int(red)
+            
+            konkretan_let['zauzetost'][red][pozicija] = False        
+        except:
+            sve_karte.update(nova_karta)
+            return sve_karte
+          
+        
+    sve_karte.update(nova_karta)
+    return sve_karte
+    
 
 
 
@@ -188,13 +220,14 @@ def ispis_karte(karta: dict, svi_konkretni_letovi: dict, svi_letovi: dict, svi_a
     let = svi_letovi[konkretan_let['broj_leta']]
     datum_i_vreme_polaska = datetime.strftime(konkretan_let['datum_i_vreme_polaska'], konstante.FORMAT_DATETIME_BEZ_SEKUNDI)
     datum_i_vreme_dolaska = datetime.strftime(konkretan_let['datum_i_vreme_dolaska'], konstante.FORMAT_DATETIME_BEZ_SEKUNDI)
-    print(f"{karta['broj_karte']: <10}{let['sifra_polazisnog_aerodroma']: <10}{let['sifra_odredisnog_aerodorma']: <10}{datum_i_vreme_polaska:<30}{datum_i_vreme_dolaska:<30}")
+    print(f"{karta['broj_karte']: <20}{let['sifra_polazisnog_aerodroma']: <20}{let['sifra_odredisnog_aerodorma']: <20}{datum_i_vreme_polaska:<30}{datum_i_vreme_dolaska:<30}")
 
 """
 Funkcija koja učitava sve karte iz fajla i vraća ih u rečniku.
 """
 
 def ucitaj_karte_iz_fajla(putanja: str, separator: str) -> dict:
+    global sledeci_broj_karte
     with open(putanja) as f:
         karte = dict()
         csv_citac = DictReader(f, ['broj_karte', 'sifra_konkretnog_leta', 'sediste', 'putnici', 'status',
@@ -218,4 +251,5 @@ def ucitaj_karte_iz_fajla(putanja: str, separator: str) -> dict:
                         'obrisana': karta['obrisana'] == 'True'
                     }
             })
+    sledeci_broj_karte = max(karte) + 1
     return karte

@@ -143,8 +143,14 @@ def pretraga_karata():
     pass
 
 def registracija_novog_prodavca():
-    pass
-
+    system('cls')
+    print("-------------------------------")
+    print("Registracija novoga prodavca")
+    print("-------------------------------")
+    print("1: Prodavac već poseduje nalog")
+    print("2: Kreiraj novi nalog")
+    print("X: Nazad")
+    
 def kreiranje_letova():
     system("cls")
     print("-------------------------------")

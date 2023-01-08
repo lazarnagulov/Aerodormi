@@ -1,10 +1,10 @@
 from letovi import letovi
 from karte import karte
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from izuzeci import izuzeci
 
 
-def izvestaj_prodatih_karata_za_dan_prodaje(sve_karte: dict, dan: str) -> list:
+def izvestaj_prodatih_karata_za_dan_prodaje(sve_karte: dict, dan: date) -> list:
     prodate_karte = list()
     for karta in sve_karte:
         if sve_karte[karta]['datum_prodaje'] == dan:
@@ -12,7 +12,7 @@ def izvestaj_prodatih_karata_za_dan_prodaje(sve_karte: dict, dan: str) -> list:
     return prodate_karte
 
 
-def izvestaj_prodatih_karata_za_dan_polaska(sve_karte: dict, svi_konkretni_letovi: dict, dan: str) -> list:
+def izvestaj_prodatih_karata_za_dan_polaska(sve_karte: dict, svi_konkretni_letovi: dict, dan: date) -> list:
     prodate_karte = list()
     for karta in sve_karte:
         sifra_konkretnog_leta = sve_karte[karta]['sifra_konkretnog_leta']
@@ -22,7 +22,7 @@ def izvestaj_prodatih_karata_za_dan_polaska(sve_karte: dict, svi_konkretni_letov
     return prodate_karte
 
 
-def izvestaj_prodatih_karata_za_dan_prodaje_i_prodavca(sve_karte: dict, dan: datetime, prodavac: str) -> list:
+def izvestaj_prodatih_karata_za_dan_prodaje_i_prodavca(sve_karte: dict, dan: date, prodavac: str) -> list:
     prodate_karte = list()
     for karta in sve_karte:
         prodavac_karte = sve_karte[karta]['prodavac']
@@ -33,7 +33,7 @@ def izvestaj_prodatih_karata_za_dan_prodaje_i_prodavca(sve_karte: dict, dan: dat
 
 
 # ubc znaci ukupan broj i cena vraca neki tapl
-def izvestaj_ubc_prodatih_karata_za_dan_prodaje(sve_karte: dict, svi_konkretni_letovi: dict, svi_letovi: dict,  dan: datetime):
+def izvestaj_ubc_prodatih_karata_za_dan_prodaje(sve_karte: dict, svi_konkretni_letovi: dict, svi_letovi: dict,  dan: date):
     broj_prodatih_karata = 0
     ukupna_cena = 0
     for karta in sve_karte:
@@ -45,7 +45,7 @@ def izvestaj_ubc_prodatih_karata_za_dan_prodaje(sve_karte: dict, svi_konkretni_l
 
 
 # ubc znaci ukupan broj i cena
-def izvestaj_ubc_prodatih_karata_za_dan_polaska(sve_karte: dict, svi_konkretni_letovi: dict, svi_letovi: dict, dan: datetime):
+def izvestaj_ubc_prodatih_karata_za_dan_polaska(sve_karte: dict, svi_konkretni_letovi: dict, svi_letovi: dict, dan: date):
     broj_prodatih_karata = 0
     ukupna_cena = 0
     for karta in sve_karte:
@@ -60,7 +60,7 @@ def izvestaj_ubc_prodatih_karata_za_dan_polaska(sve_karte: dict, svi_konkretni_l
 
 
 # ubc znaci ukupan broj i cena
-def izvestaj_ubc_prodatih_karata_za_dan_prodaje_i_prodavca(sve_karte: dict, svi_konkretni_letovi: dict, svi_letovi: dict, dan: datetime, prodavac: str):
+def izvestaj_ubc_prodatih_karata_za_dan_prodaje_i_prodavca(sve_karte: dict, svi_konkretni_letovi: dict, svi_letovi: dict, dan: date, prodavac: str):
     broj_prodatih_karata = 0
     ukupna_cena = 0
     for karta in sve_karte:

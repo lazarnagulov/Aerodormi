@@ -1,3 +1,11 @@
+zaglavlja_konkretni_letovi = ['Sifra', 'Let', 'Polazak', 'Dolazak']
+zaglavlja_letovi = ['Sifra', 'Polazište', 'Odredište', "Vreme poletanja", "Vreme sletanja", "Prevoznik", "Cena"]
+zaglavlja_karte = ['Broj karte', 'Polazište', 'Odredište', 'Polazak', 'Dolazak']
+
+ZAGLAVLJE_KONKRETNI_LETOVI = lambda: print(f"{zaglavlja_konkretni_letovi[0]: <10}{zaglavlja_konkretni_letovi[1]: <10}{zaglavlja_konkretni_letovi[2]: <20}{zaglavlja_konkretni_letovi[3]: <20}")
+ZAGLAVLJE_LETOVI = lambda: print(f"{zaglavlja_letovi[0]: <10}{zaglavlja_letovi[1]: <10}{zaglavlja_letovi[2]: <10}{zaglavlja_letovi[3]: <20}{zaglavlja_letovi[4]: <20}{zaglavlja_letovi[5]: <30}{zaglavlja_letovi[6]: <5}")
+ZAGLAVLJE_KARTE = lambda: print(f"{zaglavlja_karte[0]: <10}{zaglavlja_karte[1]: <10}{zaglavlja_karte[2]: <10}{zaglavlja_karte[3]: <30}{zaglavlja_karte[4]: <30}")
+
 ULOGA_KORISNIK = "korisnik"
 ULOGA_PRODAVAC = "prodavac"
 ULOGA_ADMIN = "admin"
@@ -9,7 +17,10 @@ PUTANJA_KONKRETNI_LETOVI = "./podaci/konkretni_letovi.csv"
 PUTANJA_MODELI_AVIONA = "./podaci/modeli_aviona.csv"
 PUTANJA_AERODROMI = "./podaci/aerodromi.csv"
 
-FORMAT_DATETIME = "%Y-%m-%d %H:%M:%SS"
+MAX_SEC = 86399
+
+FORMAT_DATETIME = "%Y-%m-%d %H:%M:%S"
+FORMAT_DATETIME_BEZ_SEKUNDI = "%Y-%m-%d %H:%M"
 FORMAT_DATE = "%Y-%m-%d"
 
 STATUS_NEREALIZOVANA_KARTA = "nerealizovana"
@@ -23,4 +34,3 @@ PETAK = 4
 SUBOTA = 5
 NEDELJA = 6
 
-ZAGLAVLJE_LET = lambda: print(f"| Let  | Od  | Do  | Poče. | Kraj  | Sutra |      Dani      | Cena  |")

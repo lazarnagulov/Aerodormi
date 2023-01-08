@@ -45,10 +45,10 @@ def nastavak_kupovine_sledece_karte():
 def potvrda_kupovine():
     system('cls')
     print("-------------------------------" )
-    print("Potvrda kupovine:")
+    print("Potvrda kupovine karte")
     print("-------------------------------" )
-    print("1: Kupi kartu")
-    print("X: Nazad")
+    print("1: Potvrdi kupovinu karte")
+    print("X: Kupi kartu za saputnika")
 
 def potvrda_prodaje():
     system('cls')
@@ -64,8 +64,7 @@ def prijava_na_let():
     print("Prijava na let")
     print("-------------------------------" )
     print("1: Unesite broj karte")
-    print("2: Prikažu kopljene karte")
-    print("3: Pretraga karata")
+    print("2: Prikažu kupljene karte")
     print("X: Nazad")
 
 def prijava():
@@ -125,6 +124,21 @@ def brisanje_karte():
     print("2: Pretraži karte")
     print("X: Nazad")
 
+def prikaz_izvestaja():
+    system('cls')
+    print("-------------------------------")
+    print("Izveštaji")
+    print("-------------------------------")
+    print("1: Prodate karte za dan prodaje")
+    print("2: Prodate karte za dan polaska")
+    print("3: Prodate karte za dan prodaje i prodavca")
+    print("4: Broj prodatih karata i cena za dan prodaje")
+    print("5: Broj prodatih karata i cena za dan polaska")
+    print("6: Broj prodatih karata i cena za dan prodaje i prodavca")
+    print("7: Broj prodatih karata i cena po prodavcima")
+    print("X: Izlaz")
+    
+    
 def pretraga_karata():
     pass
 
@@ -132,10 +146,19 @@ def registracija_novog_prodavca():
     pass
 
 def kreiranje_letova():
-    pass
+    system("cls")
+    print("-------------------------------")
+    print("KREIRANJE LETOVA")
+    print("-------------------------------")
 
-def izvestaji():
-    pass
+def izmena_letova():
+    system("cls")
+    print("-------------------------------")
+    print("KREIRANJE LETOVA")
+    print("-------------------------------")
+    print("1: Unesite broj leta")
+    print("2: Pretraga letova")
+    print("X: Nazad")    
 
 def prodaja_karte():
     system("cls")

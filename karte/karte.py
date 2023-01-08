@@ -90,6 +90,20 @@ def kupovina_karte(
     
     return (karta, sve_karte)
 
+def pretraga_prodatih_karata(korisnik: dict, svi_letovi: dict, svi_konkretni_letovi:dict, sve_karte: dict, putnik: dict, polaziste: str = "", odrediste: str = "", datum_polaska: datetime = None) -> list:
+    prodate = list()
+    if korisnik['uloga'] == konstante.ULOGA_KORISNIK:
+        raise izuzeci.NedostatakDozvole("Korisnik ne može da pretražuje prodate karte!")
+    for karta in sve_karte:
+        if sve_karte[karta].get('prodavac') == korisnik:
+            if putnik in sve_karte[karta]['putnici']:
+                konkretan_let = svi_konkretni_letovi[sve_karte[karta]['sifra_konkretnog_leta']]
+                let = svi_letovi[konkretan_let['broj_leta']]
+                if not polaziste or polaziste == let['sifra_polazisnog_aerodroma']:
+                    if not odrediste or odrediste == let['sifra_odredisnog_aerodorma']:
+                        prodate.append(sve_karte[karta])
+    return prodate
+
 
 def pretraga_karata(sve_karte: dict, svi_konkretni_letovi: dict, svi_letovi: dict, polaziste: str = "", odrediste: str = "", datum_polaska: datetime = None, 
                     datum_dolaska: datetime = None, putnik: list = None) -> list:
@@ -168,7 +182,13 @@ def sacuvaj_karte(sve_karte: dict, putanja: str, separator: str):
                                    'kupac', 'prodavac', 'sifra_sedista', 'datum_prodaje', 'obrisana'], delimiter=separator)
         for karta in sve_karte:
             csv_pisac.writerow(sve_karte[karta])
-
+#TODO: Dodati aerodrome
+def ispis_karte(karta: dict, svi_konkretni_letovi: dict, svi_letovi: dict, svi_aerodromi: dict):
+    konkretan_let = svi_konkretni_letovi[karta['sifra_konkretnog_leta']]
+    let = svi_letovi[konkretan_let['broj_leta']]
+    datum_i_vreme_polaska = datetime.strftime(konkretan_let['datum_i_vreme_polaska'], konstante.FORMAT_DATETIME_BEZ_SEKUNDI)
+    datum_i_vreme_dolaska = datetime.strftime(konkretan_let['datum_i_vreme_dolaska'], konstante.FORMAT_DATETIME_BEZ_SEKUNDI)
+    print(f"{karta['broj_karte']: <10}{let['sifra_polazisnog_aerodroma']: <10}{let['sifra_odredisnog_aerodorma']: <10}{datum_i_vreme_polaska:<30}{datum_i_vreme_dolaska:<30}")
 
 """
 Funkcija koja učitava sve karte iz fajla i vraća ih u rečniku.

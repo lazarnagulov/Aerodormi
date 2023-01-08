@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from common import konstante
 from letovi import letovi
 from csv import DictReader, DictWriter
 
@@ -15,8 +16,8 @@ def kreiranje_konkretnog_leta(svi_konkretni_letovi: dict, let: dict):
     sat_poletanja, minut_poletanja = let['vreme_poletanja'].split(":")
     sat_sletanja, minut_sletanja = let['vreme_sletanja'].split(":")    
     
-    # datum_pocetka = datetime.strptime(datum_pocetka, "%Y-%m-%d %H:%M:%S")
-    # datum_kraja = datetime.strptime(datum_kraja, "%Y-%m-%d %H:%M:%S")
+    # datum_pocetka = datetime.strptime(datum_pocetka, konstante.FORMAT_DATETIME)
+    # datum_kraja = datetime.strptime(datum_kraja, konstante.FORMAT_DATETIME)
         
     datum_i_vreme_poletanja = datum_pocetka.replace(hour = int(sat_poletanja), minute = int(minut_poletanja))
     datum_i_vreme_sletanja = datum_pocetka.replace(hour = int(sat_sletanja), minute = int(minut_sletanja))
@@ -52,12 +53,13 @@ def sacuvaj_kokretan_let(putanja: str, separator: str, svi_konkretni_letovi: dic
             csv_pisac.writerow({
                 'sifra': int(svi_konkretni_letovi[konkretan_let]['sifra']),
                 'broj_leta': svi_konkretni_letovi[konkretan_let]['broj_leta'],
-                'datum_i_vreme_polaska': datetime.strftime(svi_konkretni_letovi[konkretan_let]['datum_i_vreme_polaska'], '%Y-%m-%d %H:%M:%S'),
-                'datum_i_vreme_dolaska': datetime.strftime(svi_konkretni_letovi[konkretan_let]['datum_i_vreme_dolaska'], '%Y-%m-%d %H:%M:%S'),
+                'datum_i_vreme_polaska': datetime.strftime(svi_konkretni_letovi[konkretan_let]['datum_i_vreme_polaska'], konstante.FORMAT_DATETIME),
+                'datum_i_vreme_dolaska': datetime.strftime(svi_konkretni_letovi[konkretan_let]['datum_i_vreme_dolaska'], konstante.FORMAT_DATETIME),
                 'zauzetost': matrica                
             })
 
 def ucitaj_konkretan_let(putanja: str, separator: str) -> dict:
+    global sifra_konkretnog_leta
     konkretni_letovi = dict()
     with open(putanja) as f:
         csv_citac = DictReader(f, ['sifra', 'broj_leta', 'datum_i_vreme_polaska', 'datum_i_vreme_dolaska', 'zauzetost'], delimiter = separator)
@@ -72,9 +74,10 @@ def ucitaj_konkretan_let(putanja: str, separator: str) -> dict:
                 {
                     'sifra': int(konkretan_let['sifra']),
                     'broj_leta': konkretan_let['broj_leta'],
-                    'datum_i_vreme_polaska': datetime.strptime(konkretan_let['datum_i_vreme_polaska'], '%Y-%m-%d %H:%M:%S'),
-                    'datum_i_vreme_dolaska': datetime.strptime(konkretan_let['datum_i_vreme_dolaska'], '%Y-%m-%d %H:%M:%S'),
+                    'datum_i_vreme_polaska': datetime.strptime(konkretan_let['datum_i_vreme_polaska'], konstante.FORMAT_DATETIME),
+                    'datum_i_vreme_dolaska': datetime.strptime(konkretan_let['datum_i_vreme_dolaska'], konstante.FORMAT_DATETIME),
                     'zauzetost': matrica
                 }
             })
+    sifra_konkretnog_leta = max(konkretni_letovi) + 1
     return konkretni_letovi

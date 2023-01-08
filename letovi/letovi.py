@@ -7,6 +7,46 @@ from datetime import datetime, timedelta, date
 
 sifra_konkretnog_leta = 1
 
+def podesi_graf_letova(svi_letovi: dict) -> dict:
+    graf = dict()  
+    for let in svi_letovi:
+        polaziste = svi_letovi[let]['sifra_polazisnog_aerodroma']
+        odrediste = svi_letovi[let]['sifra_odredisnog_aerodorma']
+        vreme_poletanja = svi_letovi[let]['vreme_poletanja']
+        vreme_poletanja = datetime.strptime(vreme_poletanja, "%H:%M")
+        vreme_sletanja = svi_letovi[let]['vreme_sletanja']
+        vreme_sletanja = datetime.strptime(vreme_sletanja, "%H:%M")
+        tezina =  vreme_sletanja - vreme_poletanja
+        if graf.get(polaziste) == None:
+            graf[polaziste] = [[odrediste, tezina]]
+        else:
+            graf[polaziste].append([odrediste, tezina])
+    
+    return graf
+
+def najkraci_putevi_u_grafu(graf: dict, polaziste: str):
+    beskonacno_vreme = timedelta(seconds = konstante.MAX_SEC)
+    udaljenost = {i: beskonacno_vreme for i in graf}
+    poseceno = {i: False for i in graf}
+    udaljenost[polaziste] = timedelta(seconds = 0)
+    
+    for cvorovi in graf[polaziste]:
+        cvor = cvorovi[0]
+        tezina = cvorovi[1]
+        
+        min_tezina = timedelta(seconds = konstante.MAX_SEC)
+        min_index = ""
+        
+        
+        poseceno[min_index] = True
+    
+    print(poseceno)
+    return udaljenost
+    
+def najkrace_vreme_putovanja(polaziste: str, odrediste: str, datum: datetime):
+    pass
+
+
 def podesi_let(broj_leta: str, sifra_polazisnog_aerodroma: str, sifra_odredisnog_aerodorma: str,
                vreme_poletanja: str, vreme_sletanja: str, datum_pocetka_operativnosti: datetime, datum_kraja_operativnosti: datetime, sletanje_sutra: bool, prevoznik: str,
                dani: list, model: dict, cena: int) -> dict:
@@ -77,13 +117,14 @@ def validacija_leta(broj_leta: str, sifra_polazisnog_aerodroma: str, sifra_odred
     if datum_kraja_operativnosti != None and datum_pocetka_operativnosti != None and datum_kraja_operativnosti < datum_pocetka_operativnosti:
         raise izuzeci.NeispravnoUnetiPodaci("Greška - Kraj operativnosti je pre početka.")
     
-def ispis_leta(let: dict):
-    print(let)
-    # tabela = list()
-    # for podatak in let:
-    #     tabela.append([podatak, let[podatak]])
-    
-    # print(tabulate(tabela))
+def ispis_konkretnog_leta(let: dict):
+    datum_i_vreme_polaska = datetime.strftime(let['datum_i_vreme_polaska'], konstante.FORMAT_DATETIME_BEZ_SEKUNDI)
+    datum_i_vreme_dolaska = datetime.strftime(let['datum_i_vreme_dolaska'], konstante.FORMAT_DATETIME_BEZ_SEKUNDI)
+    print(f"{let['sifra']: <10}{let['broj_leta']: <10}{datum_i_vreme_polaska: <20}{datum_i_vreme_dolaska: <20}")
+
+def ispis_leta(let: dict):    
+    print(f"{let['broj_leta']: <10}{let['sifra_polazisnog_aerodroma']: <10}{let['sifra_odredisnog_aerodorma']: <10}{let['vreme_poletanja']: <20}{let['vreme_sletanja']: <20}{let['prevoznik']: <30}{let['cena']: <5}")
+
 
 """
 Funkcija koja vraća matricu zauzetosti sedišta. Svaka stavka sadrži oznaku pozicije i oznaku reda.
@@ -176,11 +217,12 @@ def fleksibilni_polasci(svi_letovi: dict, konkretni_letovi: dict, polaziste: str
             sifra_polazista = svi_letovi[konkretni_letovi[konkretan_let]['broj_leta']]['sifra_polazisnog_aerodroma']
             sifra_odredista = svi_letovi[konkretni_letovi[konkretan_let]['broj_leta']]['sifra_odredisnog_aerodorma']
         except:
-            return filtriranik_letovi
-        if polaziste == sifra_polazista and odrediste == sifra_odredista and konkretan_datum <= krajnji and konkretan_datum >= pocetni:
-            filtriranik_letovi.append(konkretni_letovi[konkretan_let])
+            continue
+        if not polaziste or polaziste == sifra_polazista:
+            if not odrediste or odrediste == sifra_odredista:
+                if konkretan_datum <= krajnji and konkretan_datum >= pocetni:
+                    filtriranik_letovi.append(konkretni_letovi[konkretan_let])
     return filtriranik_letovi
-
 
 
 """
@@ -195,7 +237,7 @@ def pregled_nerealizovanih_letova(svi_letovi: dict) -> list:
     
     for let in svi_letovi:
         if type(svi_letovi[let]['datum_pocetka_operativnosti']) == str:
-            svi_letovi[let]['datum_pocetka_operativnosti'] = datetime.strptime(svi_letovi[let]['datum_pocetka_operativnosti'], "%Y-%m-%d %H:%M:%S")
+            svi_letovi[let]['datum_pocetka_operativnosti'] = datetime.strptime(svi_letovi[let]['datum_pocetka_operativnosti'], konstante.FORMAT_DATETIME)
         if svi_letovi[let]['datum_pocetka_operativnosti'] >= trenutno_vreme:
             nerealizovani_letovi.append(svi_letovi[let])
     
@@ -210,10 +252,16 @@ Povratna vrednost je lista konkretnih letova.
 def pretraga_letova(svi_letovi: dict, konkretni_letovi: dict, polaziste: str = "", odrediste: str = "", datum_polaska: str = "", datum_dolaska: str = "",
                     vreme_poletanja: str = "", vreme_sletanja: str = "", prevoznik: str = "") -> list:
     filtrirano = list()
+    
     for konkretan_let in konkretni_letovi:
         let = svi_letovi[konkretni_letovi[konkretan_let]['broj_leta']]
-        if not datum_polaska or datum_polaska.date() == konkretni_letovi[konkretan_let]['datum_i_vreme_polaska'].date():
-            if not datum_dolaska or datum_dolaska.date() == konkretni_letovi[konkretan_let]['datum_i_vreme_dolaska'].date():
+        try:
+            datum_i_vreme_dolaska = konkretni_letovi[konkretan_let]['datum_i_vreme_polaska'].date()
+            datum_i_vreme_polaska = konkretni_letovi[konkretan_let]['datum_i_vreme_dolaska'].date()
+        except:
+            raise izuzeci.NeispravnoUnetiPodaci(f"Greška - Datum nije formata {konstante.FORMAT_DATE}")
+        if not datum_polaska or datum_polaska.date() == datum_i_vreme_dolaska:
+            if not datum_dolaska or datum_dolaska.date() == datum_i_vreme_polaska:
                 if not odrediste or let['sifra_odredisnog_aerodorma'] == odrediste:
                     if not polaziste or let['sifra_polazisnog_aerodroma'] == polaziste:
                         if not vreme_poletanja or let['vreme_poletanja'] == vreme_poletanja:
@@ -253,6 +301,21 @@ def kreiranje_letova(svi_letovi: dict, broj_leta: str, sifra_polazisnog_aerodrom
     svi_letovi.update(let)
     return svi_letovi
 
+def ispis_matrice(matrica: list):
+    for red in range(len(matrica)):
+        sedista = matrica[red]
+        sedista_karakateri = ["" for _ in range(len(matrica[red]))]
+        i = 0
+        while i < len(sedista):
+            if sedista[i]:
+                sedista_karakateri[i] = 'X'
+            else:
+                sedista_karakateri[i] = chr(ord('A') + i)
+            i += 1
+        print(f"Red {red}:", end='')
+        for mesto in sedista_karakateri:
+            print(mesto,end=' ')    
+        print()
 
 """
 Funkcija koja menja let sa prosleđenim vrednostima. Kao rezultat vraća kolekciju

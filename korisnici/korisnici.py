@@ -120,27 +120,23 @@ def logout(korisnicko_ime: str):
     korisnicko_ime = {}
 
 
-def registracija(svi_korisnici: dict):
-    while True:
-        korisnicko_ime = str(input("Korisničko ime: "))
-        if korisnicko_ime == "":
-            break
-        lozinka = str(input("Lozinka: "))
-        telefon = str(input("Kontakt telefon: "))
-        email = str(input("Email: "))
-        ime = str(input("Ime: "))
-        prezime = str(input("Prezime: "))
-        pasos = ""
-        drzavljanstvo = ""
-        pol = ""
-        povratna_informacija = kreiraj_korisnika(svi_korisnici, False, "korisnik", None, korisnicko_ime, lozinka, ime, prezime, email, pasos, drzavljanstvo, telefon, pol)
-        if type(povratna_informacija) == dict:
-            print("Uspešna registracija")
-            return
-        else:
-            print("Neusprešna prijava")
-            sleep(0.5)
+def registracija(svi_korisnici: dict) -> dict:
+    korisnicko_ime = str(input("Korisničko ime: "))
+    if korisnicko_ime == "":
+        return
+    lozinka = str(input("Lozinka: "))
+    telefon = str(input("Kontakt telefon: "))
+    email = str(input("Email: "))
+    ime = str(input("Ime: "))
+    prezime = str(input("Prezime: "))
+    pasos = ""
+    drzavljanstvo = ""
+    pol = ""
+    povratna_informacija = kreiraj_korisnika(svi_korisnici, False, "korisnik", None, korisnicko_ime, lozinka, ime, prezime, email, pasos, drzavljanstvo, telefon, pol)
 
+    print("Uspešna registracija")
+    return povratna_informacija
+    
 def prijava(svi_korisnici: dict) -> dict:
     while True:
         interfejsi.prijava()
@@ -149,9 +145,10 @@ def prijava(svi_korisnici: dict) -> dict:
             return        
         lozinka = str(input("Lozinka: "))
         prijavaljeni_korisnik = login(svi_korisnici, korisnicko_ime, lozinka)
-        if type(prijavaljeni_korisnik) == dict:
-            print("Uspešna prijava!")
-            return prijavaljeni_korisnik
+        
+            
+        print("Uspešna prijava!")
+        return prijavaljeni_korisnik
         
 
 

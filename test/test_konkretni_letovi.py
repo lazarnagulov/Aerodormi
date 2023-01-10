@@ -73,8 +73,7 @@ class KonkretanLetTest(unittest.TestCase):
         self.assertIsNotNone(ucitani_letovi, msg="Nisu učitani konkretni letovi iz fajla")
         self.assertEqual(len(referentni_konkretni_letovi), len(ucitani_letovi),
                          msg="Dužine učitanih konkretnih letova nisu jednake")
-
-        self.assertEqual(ucitani_letovi, referentni_konkretni_letovi)
+        self.assertDictEqual(ucitani_letovi, referentni_konkretni_letovi)
 
 if __name__ == '__main__':
     unittest.main()

@@ -33,7 +33,7 @@ def izvestaj_prodatih_karata_za_dan_prodaje_i_prodavca(sve_karte: dict, dan: dat
 
 
 # ubc znaci ukupan broj i cena vraca neki tapl
-def izvestaj_ubc_prodatih_karata_za_dan_prodaje(sve_karte: dict, svi_konkretni_letovi: dict, svi_letovi: dict,  dan: date):
+def izvestaj_ubc_prodatih_karata_za_dan_prodaje(sve_karte: dict, svi_konkretni_letovi: dict, svi_letovi: dict,  dan: date) -> (int, float):
     broj_prodatih_karata = 0
     ukupna_cena = 0
     for karta in sve_karte:

@@ -2,7 +2,10 @@ from izuzeci import izuzeci
 from csv import DictReader, DictWriter
 
 sifra_modela = 0 
-    
+
+def ispis_modela_aviona(model_aviona: dict):
+    print(f"{model_aviona['id']:<10}{model_aviona['naziv']:<30}{model_aviona['broj_redova']:<30}")
+
 """
 Funkcija kreira novi rečnik za model aviona i dodaje ga u rečnik svih modela aviona.
 Kao rezultat vraća rečnik svih modela aviona sa novim modelom.

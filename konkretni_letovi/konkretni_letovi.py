@@ -33,7 +33,7 @@ def kreiranje_konkretnog_leta(svi_konkretni_letovi: dict, let: dict):
                             'sifra': sifra_konkretnog_leta,
                             'broj_leta': let['broj_leta'],
                             'datum_i_vreme_polaska': datum_i_vreme_poletanja,
-                            'datum_i_vreme_dolaska': datum_i_vreme_poletanja,
+                            'datum_i_vreme_dolaska': datum_i_vreme_sletanja,
                         }
                     })
             sifra_konkretnog_leta += 1
@@ -81,5 +81,6 @@ def ucitaj_konkretan_let(putanja: str, separator: str) -> dict:
                     'zauzetost': matrica
                 }
             })
-    sifra_konkretnog_leta = max(konkretni_letovi) + 1
+    if konkretni_letovi != {}:
+       sifra_konkretnog_leta = max(konkretni_letovi) + 1
     return konkretni_letovi

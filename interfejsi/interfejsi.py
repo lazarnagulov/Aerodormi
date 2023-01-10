@@ -22,6 +22,15 @@ def odabir_putnika():
     print("2: Drugu osobu")
     print("X: Nazad")
 
+def odabir_putnika_prodaja():
+    system("cls")
+    print("-------------------------------" )
+    print("Prodaja karte za:")
+    print("-------------------------------" )
+    print("1: Registrovanog korisnika")
+    print("2: Neregistrovanog korisnika")
+    print("X: Nazad")
+
 def nastavak_kupovine():
     system('cls')
     print("-------------------------------" )
@@ -81,6 +90,15 @@ def kupovina_sledece():
     print("-------------------------------")            
     print("1: Da")
     print("2: Ne")
+
+def prodaja_sledece():
+    system('cls')
+    print("-------------------------------")            
+    print("Da li želite da prodate sledeću kartu?")
+    print("-------------------------------")            
+    print("1: Da")
+    print("2: Ne")
+    
 
 def kupovina_karata():
     system("cls")

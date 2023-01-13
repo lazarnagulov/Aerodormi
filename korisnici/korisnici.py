@@ -129,9 +129,9 @@ def registracija(svi_korisnici: dict) -> dict:
     email = str(input("Email: "))
     ime = str(input("Ime: "))
     prezime = str(input("Prezime: "))
-    pasos = ""
-    drzavljanstvo = ""
-    pol = ""
+    pasos = input("Pasoš (nije obavezno): ")
+    drzavljanstvo = input("Državljanstvo (nije obavezno): ")
+    pol = input("Pol (nije obavezno): ")
     povratna_informacija = kreiraj_korisnika(svi_korisnici, False, "korisnik", None, korisnicko_ime, lozinka, ime, prezime, email, pasos, drzavljanstvo, telefon, pol)
 
     print("Uspešna registracija")

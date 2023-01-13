@@ -73,7 +73,22 @@ class KonkretanLetTest(unittest.TestCase):
         self.assertIsNotNone(ucitani_letovi, msg="Nisu učitani konkretni letovi iz fajla")
         self.assertEqual(len(referentni_konkretni_letovi), len(ucitani_letovi),
                          msg="Dužine učitanih konkretnih letova nisu jednake")
-        self.assertDictEqual(ucitani_letovi, referentni_konkretni_letovi)
+        for id in ucitani_letovi:
+            self.assertIsNotNone(ucitani_letovi, msg="Nisu učitani konkretni letovi iz fajla")
+            self.assertEqual(len(referentni_konkretni_letovi), len(ucitani_letovi),
+                             msg="Dužine učitanih konkretnih letova nisu jednake")
+
+            self.assertEqual(referentni_konkretni_letovi[id]["broj_leta"], ucitani_letovi[id]["broj_leta"],
+                             msg="Učitani konkretni letovi se ne poklapaju")
+            self.assertEqual(referentni_konkretni_letovi[id]["datum_i_vreme_dolaska"],
+                             ucitani_letovi[id]["datum_i_vreme_dolaska"],
+                             msg="Učitani konkretni letovi se ne poklapaju")
+            self.assertEqual(referentni_konkretni_letovi[id]["datum_i_vreme_polaska"],
+                             ucitani_letovi[id]["datum_i_vreme_polaska"],
+                             msg="Učitani konkretni letovi se ne poklapaju")
+            self.assertEqual(referentni_konkretni_letovi[id]["sifra"], ucitani_letovi[id]["sifra"],
+                             msg="Učitani konkretni letovi se ne poklapaju")
+
 
 if __name__ == '__main__':
     unittest.main()

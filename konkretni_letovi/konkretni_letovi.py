@@ -3,7 +3,7 @@ from common import konstante
 from letovi import letovi
 from csv import DictReader, DictWriter
 
-sifra_konkretnog_leta = 0
+sifra_konkretnog_leta = 1000
 
 def kreiranje_konkretnog_leta(svi_konkretni_letovi: dict, let: dict):
     global sifra_konkretnog_leta

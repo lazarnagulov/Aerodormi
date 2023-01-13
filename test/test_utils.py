@@ -132,5 +132,5 @@ def rand_datetime_end(**kwargs):
     random_second = random.randrange(int_delta)
 
     date = start + datetime.timedelta(seconds=random_second)
-    dt = datetime.datetime.combine(date, datetime.datetime.min.time())
+    dt = datetime.datetime.combine(date, datetime.datetime.min.time()) #islo je datetirme.fdatetime i izbacivalo je gresku
     return dt

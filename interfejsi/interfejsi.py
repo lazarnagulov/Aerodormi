@@ -65,7 +65,7 @@ def potvrda_prodaje():
     print("Potvrda prodaje:")
     print("-------------------------------" )
     print("1: Prodaj kartu")
-    print("X: Nazad")
+    print("X: Prodaj kartu za saputnika")
     
 def prijava_na_let():
     system('cls')
@@ -122,16 +122,16 @@ def filteri_za_pretragu_letova():
     print("Unesite filtere za pretragu.")
     print("-------------------------------")            
 
-def adminski_pocetni(korisnik: dict):
-    system('cls')
-    print("-------------------------------")
-    print(f"Dobrodošao, {korisnik['korisnicko_ime']}!")
-    print("-------------------------------")
-    print(f"ULOGA: {korisnik['uloga'].capitalize()}")
-    print("-------------------------------")
-    print("A: Adminske komande")
-    print("K: Korisničke komande")
-    print("X: Odjava")
+# def adminski_pocetni(korisnik: dict):
+#     system('cls')
+#     print("-------------------------------")
+#     print(f"Dobrodošao, {korisnik['korisnicko_ime']}!")
+#     print("-------------------------------")
+#     print(f"ULOGA: {korisnik['uloga'].capitalize()}")
+#     print("-------------------------------")
+#     print("A: Adminske komande")
+#     print("K: Korisničke komande")
+#     print("X: Odjava")
 
 def brisanje_karte():
     system('cls')
@@ -178,11 +178,20 @@ def kreiranje_letova():
 def izmena_letova():
     system("cls")
     print("-------------------------------")
-    print("KREIRANJE LETOVA")
+    print("IZMENA LETOVA")
     print("-------------------------------")
-    print("1: Unesite broj leta")
+    print("1: Unesite šifru leta")
     print("2: Pretraga letova")
     print("X: Nazad")    
+
+def izmena_karte():
+    system("cls")
+    print("-------------------------------")
+    print("IZMENA KARATA")
+    print("-------------------------------")
+    print("1: Unesite broj karte")
+    print("2: Pretraga karata")
+    print("X: Nazad") 
 
 def prodaja_karte():
     system("cls")
@@ -192,6 +201,20 @@ def prodaja_karte():
     print("1: Unesite šifru leta")
     print("2: Pretraga konkretnih letova")    
     print("X: Nazad")
+
+def zajednicke(korisnik: dict):
+    system('cls')
+    print("-------------------------------")
+    print(f"Dobrodošao, {korisnik['korisnicko_ime']}!")
+    print("-------------------------------")
+    print(f"ULOGA: {korisnik['uloga'].capitalize()}")
+    print("-------------------------------")
+    print("1: Pregled nerealizovanih letova")
+    print("2: Pretraga letova")
+    print("3: 10 najjeftinijih letova")
+    print("4: Fleksibilni polasci") 
+    print("X: Nazad")
+
 
 
 def adminski(korisnik: dict):
@@ -207,6 +230,7 @@ def adminski(korisnik: dict):
     print("4: Izmena letova")
     print("5: Brisanje karata")
     print("6: Izveštaji")
+    print("7: Ostale funkcionalnosti")
     print("X: Nazad")
     
 def prodavacki(korisnik: dict):
@@ -221,6 +245,7 @@ def prodavacki(korisnik: dict):
     print("3: Izmeni kartu")
     print("4: Obriši kartu")
     print("5: Pretraga prodatih karata")
+    print("6: Ostale funkcionalnosti")
     print("X: Nazad")
     
     
@@ -237,6 +262,6 @@ def korisnicki(korisnik: dict):
     print("3: Kupovina karata")
     print("4: Prijava na let")
     print("5: 10 najjeftinijih letova")
-    print("6: Polasci")
+    print("6: Fleksibilni polasci")
     print("7: Prikaži kupljene karte")
     print("X: Nazad")

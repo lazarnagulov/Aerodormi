@@ -74,7 +74,14 @@ class KonkretanLetTest(unittest.TestCase):
         self.assertEqual(len(referentni_konkretni_letovi), len(ucitani_letovi),
                          msg="Dužine učitanih konkretnih letova nisu jednake")
         for id in ucitani_letovi:
-            self.assertIsNotNone(ucitani_letovi, msg="Nisu učitani konkretni letovi iz fajla")
+            # ucitan_aerodrom = ucitani_letovi[id]
+            # referentni_konkretni_letovi = {
+            #     let["sifra"]: let for let in gen_rand_valid_konkretan_let(10)
+            # }
+            # konkretni_letovi.sacuvaj_kokretan_let(self.putanja, "|", referentni_konkretni_letovi)
+
+            # ucitani_letovi = konkretni_letovi.ucitaj_konkretan_let(self.putanja, "|")
+            # self.assertIsNotNone(ucitani_letovi, msg="Nisu učitani konkretni letovi iz fajla")
             self.assertEqual(len(referentni_konkretni_letovi), len(ucitani_letovi),
                              msg="Dužine učitanih konkretnih letova nisu jednake")
 

@@ -95,7 +95,7 @@ def gen_rand_valid_aerodrom(num):
 def rand_valid_model_aviona():
     return {
         "naziv": rand_str(3),
-        "broj_redova": random.randint(0,20),
+        "broj_redova": random.randint(1,20),
         "pozicije_sedista": rand_seat_positions(),
         "id": random.randint(0,20),
     }

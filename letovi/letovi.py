@@ -7,11 +7,6 @@ from queue import PriorityQueue
 
 sifra_konkretnog_leta = 1
 
-# TODO: IDEJA:
-# Uraditi isto samo za konkretne letova koje su nedelju dana od zadatog datuma
-# Čuvati koji je let u pitanju zajedno sa povezanosti i težinoms?
-# Ukoliko dva leta imaju isto polazište i odredište, sačuvati ono koje putuje kraće?
-
 def podesi_graf_letova(svi_letovi: dict) -> dict:
     graf = dict()
     for let in svi_letovi:
@@ -33,11 +28,19 @@ def podesi_graf_letova(svi_letovi: dict) -> dict:
 
     return graf
 
-def najkraci_putevi_u_grafu(graf: dict, polaziste: str, svi_letovi: dict):
+def ispis_puta(cvor: str, roditelji: list):
+    if roditelji[cvor] == "NEMA_RODITELJA":
+        return
+    ispis_puta(roditelji[cvor], roditelji)
+    print(f"{cvor}->", end="")
+
+def najkraci_putevi_u_grafu(graf: dict, polaziste: str):
     beskonacno_vreme = timedelta(seconds=konstante.MAX_SEC)
     udaljenost = {i: beskonacno_vreme for i in graf}
     udaljenost[polaziste] = timedelta(seconds=0)
-
+    roditelji = dict()
+    roditelji[polaziste] = "NEMA_RODITELJA"
+    
     pq = PriorityQueue()
     pq.put([timedelta(seconds=0), polaziste])
     while not pq.empty():
@@ -45,15 +48,18 @@ def najkraci_putevi_u_grafu(graf: dict, polaziste: str, svi_letovi: dict):
         for odrediste, tezina in graf[cvor]:
             ukupna_tezina = trenutna_tezina + tezina
             if ukupna_tezina < udaljenost[odrediste]:
+                roditelji[odrediste] = cvor
                 udaljenost[odrediste] = ukupna_tezina
                 pq.put([ukupna_tezina, odrediste])
-            
-    return udaljenost
-
+    return udaljenost, roditelji
 
 def najkrace_vreme_putovanja(svi_letovi: dict, polaziste: str, odrediste: str):
     graf = podesi_graf_letova(svi_letovi)
-    putevi = najkraci_putevi_u_grafu(graf, polaziste, svi_letovi)
+    putevi, roditelji = najkraci_putevi_u_grafu(graf, polaziste)
+    print(f"Najkraći put od {polaziste} do {odrediste}:")
+    print(f"{polaziste}->", end="")
+    ispis_puta(odrediste, roditelji)
+    print()
     print(f"Najkraće vreme putovanje od {polaziste} do {odrediste} traje: {putevi[odrediste]}")
     
 
@@ -95,11 +101,9 @@ def validacija_leta(broj_leta: str, sifra_polazisnog_aerodroma: str, sifra_odred
                     dani: list, model: dict, cena: int, datum_pocetka_operativnosti: datetime = None,
                     datum_kraja_operativnosti: datetime = None):
     if not broj_leta or not sifra_odredisnog_aerodorma or not sifra_polazisnog_aerodroma or not vreme_poletanja or not vreme_sletanja or sletanje_sutra == "" or not prevoznik or not dani or not model or not cena:
-        raise izuzeci.NepostojeciPodaci(
-            "Greška - Obavezni podaci nisu pravilno uneti!")
+        raise izuzeci.NepostojeciPodaci("Greška - Obavezni podaci nisu pravilno uneti!")
     if len(sifra_odredisnog_aerodorma) != 3 or len(sifra_polazisnog_aerodroma) != 3:
-        raise izuzeci.NeispravnoUnetiPodaci(
-            "Greška - Šifre aerodroma ne poštuju IATA.")
+        raise izuzeci.NeispravnoUnetiPodaci("Greška - Šifre aerodroma ne poštuju IATA.")
     if not (str(broj_leta[0:2]).isalpha() and str(broj_leta[2:4]).isnumeric()) and len(broj_leta) > 4:
         raise izuzeci.NeispravanBrojLeta(
             f"Greška - Broj leta mora biti oblika <slovo><slovo><broj><broj>. ({broj_leta})")
@@ -129,12 +133,15 @@ def validacija_leta(broj_leta: str, sifra_polazisnog_aerodroma: str, sifra_odred
             "Greška - Kraj operativnosti je pre početka.")
 
 
-def ispis_konkretnog_leta(let: dict):
+def ispis_konkretnog_leta(let: dict, svi_letovi: dict):
+    polaziste = svi_letovi[let['broj_leta']]['sifra_polazisnog_aerodroma']
+    odrediste = svi_letovi[let['broj_leta']]['sifra_odredisnog_aerodorma']
+    cena = svi_letovi[let['broj_leta']]['cena']
     datum_i_vreme_polaska = datetime.strftime(
         let['datum_i_vreme_polaska'], konstante.FORMAT_DATETIME_BEZ_SEKUNDI)
     datum_i_vreme_dolaska = datetime.strftime(
         let['datum_i_vreme_dolaska'], konstante.FORMAT_DATETIME_BEZ_SEKUNDI)
-    print(f"{let['sifra']: <10}{let['broj_leta']: <10}{datum_i_vreme_polaska: <20}{datum_i_vreme_dolaska: <20}")
+    print(f"{let['sifra']: <10}{let['broj_leta']: <10}{datum_i_vreme_polaska: <20}{datum_i_vreme_dolaska: <20}{polaziste: <10}{odrediste: <10}{cena: <10}")
 
 
 def ispis_leta(let: dict):
@@ -290,13 +297,10 @@ def pretraga_letova(svi_letovi: dict, konkretni_letovi: dict, polaziste: str = "
     for konkretan_let in konkretni_letovi:
         let = svi_letovi[konkretni_letovi[konkretan_let]['broj_leta']]
         try:
-            datum_i_vreme_dolaska = konkretni_letovi[konkretan_let]['datum_i_vreme_polaska'].date(
-            )
-            datum_i_vreme_polaska = konkretni_letovi[konkretan_let]['datum_i_vreme_dolaska'].date(
-            )
+            datum_i_vreme_dolaska = konkretni_letovi[konkretan_let]['datum_i_vreme_polaska'].date()
+            datum_i_vreme_polaska = konkretni_letovi[konkretan_let]['datum_i_vreme_dolaska'].date()
         except:
-            raise izuzeci.NeispravnoUnetiPodaci(
-                f"Greška - Datum nije formata {konstante.FORMAT_DATE}")
+            raise izuzeci.NeispravnoUnetiPodaci(f"Greška - Datum nije formata {konstante.FORMAT_DATE}")
         if not datum_polaska or datum_polaska.date() == datum_i_vreme_dolaska:
             if not datum_dolaska or datum_dolaska.date() == datum_i_vreme_polaska:
                 if not odrediste or let['sifra_odredisnog_aerodorma'] == odrediste:

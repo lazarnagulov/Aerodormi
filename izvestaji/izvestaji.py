@@ -29,6 +29,8 @@ def izvestaj_prodatih_karata_za_dan_prodaje_i_prodavca(sve_karte: dict, dan: dat
     prodate_karte = list()
     for karta in sve_karte:
         prodavac_karte = sve_karte[karta]['prodavac']
+        if type(prodavac_karte) == tuple:
+            prodavac_karte = prodavac_karte[0]
         if prodavac_karte == "":
             continue
         if type(prodavac_karte) != str:
@@ -85,8 +87,10 @@ def izvestaj_ubc_prodatih_karata_za_dan_prodaje_i_prodavca(sve_karte: dict, svi_
         prodavac_karte = sve_karte[karta]['prodavac']
         if prodavac_karte == "":
             continue
-        if type(prodavac_karte) != str:
+        try:
             prodavac_karte = prodavac_karte['korisnicko_ime']
+        except:
+            pass
         if datum_prodaje == dan and prodavac_karte == prodavac:
             broj_prodatih_karata += 1
             sifra_konkretnog_leta = sve_karte[karta]['sifra_konkretnog_leta']

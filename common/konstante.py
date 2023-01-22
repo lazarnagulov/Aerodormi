@@ -1,10 +1,10 @@
-zaglavlja_konkretni_letovi = ['Sifra', 'Let', 'Polazak', 'Dolazak']
+zaglavlja_konkretni_letovi = ['Sifra', 'Let', 'Polazak', 'Dolazak', 'Polazište', 'Odredište', 'Cena']
 zaglavlja_letovi = ['Sifra', 'Polazište', 'Odredište', "Vreme poletanja", "Vreme sletanja", "Prevoznik", "Cena"]
-zaglavlja_karte = ['Broj karte', 'Polazište', 'Odredište', 'Polazak', 'Dolazak']
+zaglavlja_karte = ['Broj karte', 'Let', 'Polazište', 'Odredište', 'Polazak', 'Dolazak']
 
-ZAGLAVLJE_KONKRETNI_LETOVI = lambda: print(f"{zaglavlja_konkretni_letovi[0]: <10}{zaglavlja_konkretni_letovi[1]: <10}{zaglavlja_konkretni_letovi[2]: <20}{zaglavlja_konkretni_letovi[3]: <20}")
+ZAGLAVLJE_KONKRETNI_LETOVI = lambda: print(f"{zaglavlja_konkretni_letovi[0]: <10}{zaglavlja_konkretni_letovi[1]: <10}{zaglavlja_konkretni_letovi[2]: <20}{zaglavlja_konkretni_letovi[3]: <20}{zaglavlja_konkretni_letovi[4]: <10}{zaglavlja_konkretni_letovi[5]: <10}{zaglavlja_konkretni_letovi[6]: <10}")
 ZAGLAVLJE_LETOVI = lambda: print(f"{zaglavlja_letovi[0]: <10}{zaglavlja_letovi[1]: <10}{zaglavlja_letovi[2]: <10}{zaglavlja_letovi[3]: <20}{zaglavlja_letovi[4]: <20}{zaglavlja_letovi[5]: <30}{zaglavlja_letovi[6]: <5}")
-ZAGLAVLJE_KARTE = lambda: print(f"{zaglavlja_karte[0]: <20}{zaglavlja_karte[1]: <20}{zaglavlja_karte[2]: <20}{zaglavlja_karte[3]: <30}{zaglavlja_karte[4]: <30}")
+ZAGLAVLJE_KARTE = lambda: print(f"{zaglavlja_karte[0]: <20}{zaglavlja_karte[1]: <10}{zaglavlja_karte[2]: <20}{zaglavlja_karte[3]: <20}{zaglavlja_karte[4]: <30}{zaglavlja_karte[5]: <30}")
 
 ULOGA_KORISNIK = "korisnik"
 ULOGA_PRODAVAC = "prodavac"

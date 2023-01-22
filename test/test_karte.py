@@ -10,7 +10,6 @@ from datetime import datetime
 
 class KarteTest(unittest.TestCase):
     def setUp(self):
-        self.maxDiff = None
         self.modeli_aviona = {
             123: {
                 "id": 123,
@@ -323,6 +322,7 @@ class KarteTest(unittest.TestCase):
                 "broj_karte": i,
                 "sifra_konkretnog_leta": random.randint(1000, 10000),
                 "kupac": rand_valid_user(),  # k ime od kupca
+                "status": konstante.STATUS_NEREALIZOVANA_KARTA,
                 "prodavac": prodavac,
                 "sediste": odaberi_sediste(),
                 "datum_prodaje": rand_date_str(end=self.konkretan_let['datum_i_vreme_polaska']),

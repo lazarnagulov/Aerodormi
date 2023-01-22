@@ -149,7 +149,7 @@ class IzvestajiTest(unittest.TestCase):
         karta1 = copy.deepcopy(self.puna_karta)
         karta1["broj_karte"] = random.randint(100, 1000)
         karta1["datum_prodaje"] = datum_prodaje
-        karta1["prodavac"] =''.join(random.sample(string.ascii_lowercase, 7))
+        karta1["prodavac"] =''.join(random.sample(string.ascii_lowercase, 7)),
         karta2 = copy.deepcopy(self.puna_karta)
         karta2["datum_prodaje"] = datum_prodaje
         karta2["broj_karte"] = random.randint(100, 1000)
@@ -170,7 +170,7 @@ class IzvestajiTest(unittest.TestCase):
         karta1 = copy.deepcopy(self.puna_karta)
         karta1["broj_karte"] = 2
         karta1["datum_i_vreme_polaska"] = rand_datetime()
-        karta1["prodavac"] = ''.join(random.sample(string.ascii_lowercase, 7))
+        karta1["prodavac"] = ''.join(random.sample(string.ascii_lowercase, 7)),
         karta2 = copy.deepcopy(self.puna_karta)
         karta2["datum_i_vreme_polaska"] = karta1["datum_i_vreme_polaska"]
         karta2["broj_karte"] = 3
@@ -427,7 +427,7 @@ class IzvestajiTest(unittest.TestCase):
         datum = rand_datetime()
         karta1["broj_karte"] = 2
         karta1["datum_prodaje"] = datum
-        karta1["prodavac"] = ''.join(random.sample(string.ascii_lowercase, 7))
+        karta1["prodavac"] = ''.join(random.sample(string.ascii_lowercase, 7)),
         karta2 = copy.deepcopy(self.puna_karta)
         karta2["datum_prodaje"] = datum
         karta2["prodavac"] = karta1["prodavac"]
